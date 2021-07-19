@@ -1,0 +1,766 @@
+﻿function getReference(goRef, goRefList){
+	var controlNo = $("#controlNo").val();
+	var docType = $("#docType").val();
+	
+	$.ajax({                      
+        type:"POST",
+        url:goRef,
+        data:{docType:docType, controlNo:controlNo},
+        dataType:'json',        
+        success:function(data){
+        	if(data.samFlag){
+        		$("#refBtn").show();
+        		getReferenceList(goRefList);        	
+        	} else {
+        		$("#f_refList").hide();
+        	}
+        }, error: function(request,status,error){
+        	$("#f_refList").hide();
+        }
+  }); 
+}
+
+function getReferenceList(goRefList){
+	var controlNo = $("#controlNo").val();
+	var docType = $("#docType").val();
+	$.ajax({                      
+        type:"POST",
+        url:goRefList,
+        data:{docType:docType, controlNo:controlNo},
+        dataType:'json',        
+        success:function(data){
+        	var html1 = "";
+        	var html2 = "";
+        	
+        	if (data.refList.length > 0) {
+        		var num;
+        		
+        		if (data.refList.length > 20) {
+        			num = 20;
+        		} else {
+        			num = data.refList.length;
+        		}
+        		
+        		for (var i = 0; i < num; i++){        			
+    				html1 += "<li>" + data.refList[i] + "</li>";	        				
+        		}
+        		
+        		for (var i = 0; i < data.refList.length; i++){        			
+    				html2 += "<li>" + data.refList[i] + "</li>";	        				
+        		}
+        		
+        		$("#f_refList1").html(html1);
+        		$("#f_refList2").html(html2);
+        		
+        		
+        		$("#f_refList").show();        		
+        	} else {
+        		$("#f_refList").hide(); 
+        	}
+    		
+        	$("#refBtn").prop('href', data.url);
+        	
+        	if (data.samCrtList != null) {
+        		$("#f_crtBtn").prop('href', data.samCrtList);
+        		$("#f_crtBtn").show();
+        	} else {
+        		$("#f_crtBtn").hide();
+        	}
+        }, error: function(request,status,error){
+        	$("#f_refList").hide();
+        }
+  });
+}
+
+function drawRefChart(chartNm, tableNm,goUrl){
+	var controlNo = $("#controlNo").val();
+	var docType = $("#docType").val();
+	$.ajax({
+		  type:"POST",
+		  data : {controlNo : controlNo, tableNm : tableNm, docType:docType},
+		  url:goUrl,
+		  dataType:'json',
+		  success:function(data){
+			  Highcharts.setOptions({lang: {numericSymbols: [],thousandsSep:","}});
+			  $(chartNm).highcharts({
+			      	chart : {backgroundColor: '#F8F8F8', style: {fontFamily: "Nanum Gothic"}},
+		            title: {text: '', style: {display: 'none'}}, 
+		            subtitle: {text: '', style: {display: 'none'}},
+		            credits: {enabled: false},
+					exporting: {enabled: false},
+		            xAxis: {categories: data.yearList},
+		            yAxis: {
+		                title: {text: '',style: {display: 'none'}},
+		                plotLines: [{value: 0,width: 1,color: '#808080'}],
+		                min: 0
+		            },
+		            tooltip: {valueSuffix: '건'},
+		            legend: {layout: 'vertical',align: 'right',verticalAlign: 'top',borderWidth: 0,floating : true},
+		            plotOptions: {
+		                series: {
+		                    cursor: 'pointer',
+		                    point: {
+		                        events: {
+		                            click: function (e) {
+		                                hs.htmlExpand(null, {
+		                                    pageOrigin: {x: e.pageX,y: e.pageY},
+		                                    headingText: this.series.name,
+		                                    maincontentText: this.category +'년 : '+ this.y +' 건',
+		                                    width: 150
+		                                });
+		                            }
+		                        }
+		                    },
+		                    marker: {lineWidth: 1}
+		                }
+		            },
+		            series: [{
+		            	name: '평균',
+		            	data: data.avgList, 
+		            	color: '#ccc',
+	            		zoneAxis : 'x',
+	                	zones:[{value:9}, {dashStyle:'dot'}]},{
+	            		name: '건수',
+	            		data: data.cntList, 
+	            		color: "#ff7334",
+	            		zoneAxis : 'x',
+	                	zones:[{value:9}, {dashStyle:'dot'}]
+            			}]
+		        });
+		  }, error: function(request,status,error){
+		  }
+	  }); 
+}
+
+
+function analyticsCnt(goCnt){
+	var controlNo = $("#controlNo").val();
+	var docType = $("#docType").val();
+	$.ajax({                      
+        type:"POST",
+        url:goCnt,
+        data:{docType:docType, controlNo:controlNo},
+        dataType:'json',        
+        success:function(data){
+        	$("#f_viewCon").html('<span>' + numberWithCommas(data.view) + '</span>');
+        	$("#f_downCon").html('<span>' + numberWithCommas(data.download) + '</span>');
+        	$("#f_rentalCon").html('<span>' + numberWithCommas(data.rental) + '</span>');
+        	$("#f_copyCon").html('<span>' + numberWithCommas(data.copy) + '</span>');
+        	$("#f_eddsCon").html('<span>' + numberWithCommas(data.edds) + '</span>');
+        	$("#f_cabCon").html('<span>' + numberWithCommas(data.cab) + '</span>');
+        	$("#f_exportCon").html('<span>' + numberWithCommas(data.f_export) + '</span>');
+        	$("#f_snsCon").html('<span>' + numberWithCommas(data.sns) + '</span>');
+        	
+        	$("#f_view").html(numberWithCommas(data.view));
+        	$("#f_usage").html(numberWithCommas(data.download));
+        	$("#f_share").html( numberWithCommas(data.f_export));
+        }, error: function(request,status,error){
+        }
+  }); 
+}
+
+function subjectTop(goTop, goRef, goCnt, goOri, goLod, gobio){		
+	var controlNo = $("#controlNo").val();
+	var docType = $("#docType").val();
+	$.ajax({         
+        type:"POST",
+        url:goTop,
+        data:{docType:docType, controlNo:controlNo},
+        dataType:'json',         
+        success:function(data){        	
+        	var avg, view, usage, share;
+        	var html="";
+        	if(Object.keys(data).length > 0 && data.avgTitle != '' && data.avgTitle.length > 0){        		
+        		for(var i=0; i<data.avgTitle.length; i++){
+        			html+="<li>"+data.avgTitle[i]+"</li>";
+        		}				  
+        	}else {
+//			  $("#f_analysisW").css("width","100%");
+//			  $(".f_chart").css("width","855px");
+        	}	
+        	
+			  $("#f_avgTop").html(html);
+        	
+        	if(data.subCode == "") {
+//        		$("#f_ranking").hide();
+        	} else {        		
+        		$("#subCode").val(data.subCode);
+        	}
+        	if($("#subCode").val() == "010228" && $("#docType").val() != "M"){
+        		koreanHistory(goLod);
+        	} else {
+        		$("#f_korHisCon").hide();
+        	}
+        	
+        	if($("#subCode").val() != null && $("#subCode").val().substring(0,4) == "0402" && $("#docType").val() != "M"){
+    			bioInfoLod(gobio); 
+    		} else {
+    			$("#f_bioCon").hide();
+    		}
+        	goAvailabilityAnalysis(goRef, goCnt, goOri);
+        }, error: function(request,status,error){
+    		goAvailabilityAnalysis(goRef, goCnt, goOri);
+        }
+  });
+}
+
+function kciContents(goKci){
+	var controlNo = $("#controlNo").val();
+	var docType = $("#docType").val();
+	var title = $("#f_title").val();
+
+	$.ajax({
+		  type:"POST",
+		  data : {controlNoStr : controlNo, docType : docType, title : title},
+		  url:goKci,
+		  dataType:'json',
+		  async:false,
+		  timeout: 5000,
+		  success:function(data){
+			  if(data.length>0) {
+				  var html = "<div id='f_kciView'>";
+				  for(var i=0; i<data.length; i++){
+					  if(i==3){
+						  html+="</div><div id='f_kciHide' style='display:none;'>"
+					  }
+					  html += "<li>"+data[i]+"</li>"
+				  }
+				  html +="</div>";
+				  $("#f_kciList").html(html);	
+				  $("#kciCon").show();
+			  } else {
+				  $("#kciCon").hide();
+			  }
+		  }, error: function(){		
+			  $("#f_kciList").html("<li> 일시적인 서버 통신 장애가 있습니다. </li>");
+		  }
+	  });
+	$("#f_kciBtn").click(function(){
+		if($("#f_kciBtn").hasClass("open")){
+			$("#f_kciHide").hide();
+			$("#f_kciBtn").removeClass("open");
+		} else {
+			$("#f_kciHide").show();
+			$("#f_kciBtn").addClass("open");
+		}
+	});
+}
+
+function koreanHistory(goUrl){
+	var controlNo = $("#controlNo").val();
+	var docType = $("#docType").val();
+	$.ajax({
+		  type:"POST",
+		  data : {controlNo : controlNo, docType : docType},
+		  url:goUrl,
+		  dataType:'json',
+		  async:false,
+		  success:function(data){
+			  if( data != null && data != '' && data.urlList.length > 0) {
+				  var html = "<div id='f_khShow'>";
+				  var i=0;
+				  var no = 1;
+				  while(i<data.urlList.length){
+					  if(i==9){
+						  html+="</div><div id='f_khHide'>"
+					  }
+					  html += "<li>";
+					  for(var j=0; j<3; j++){
+						  html+=data.urlList[i]+" ";
+						  i++;
+					  }
+					  html+= "</li>"
+					  no ++;
+				  }
+				  html+="</div>"
+				  $("#f_korHistory").html(html);
+				  $("#f_korHisCon").show();
+				  $("#f_khHide").hide();
+			  } else {
+				  $("#f_korHisCon").hide();
+			  }
+			  
+			  $("#f_khBtn").click(function(){
+					if($("#f_khBtn").hasClass("open")){
+						$("#f_khHide").hide();
+						$("#f_khBtn").removeClass("open");
+					} else {
+						$("#f_khHide").show();
+						$("#f_khBtn").addClass("open");
+					}
+				});
+		  }, error: function(){
+			  $("#f_korHistory").html("<li> 일시적인 서버 통신 장애가 있습니다. </li>");
+		  }
+	  });
+}
+
+function bioInfoLod(gobio){
+	var controlNo = $("#controlNo").val();
+	var docType = $("#docType").val();
+	$.ajax({
+		  type:"POST",
+		  data : {controlNo : controlNo, docType : docType},
+		  url:gobio,
+		  dataType:'json',
+		  async:false,
+		  success:function(data){			  
+			  if( data != null) {
+				  var html = "<div id='f_bioShow'>";
+				  for(var i=0; i<data.statList.length; i++){
+					  if(i==3){
+						  html+="</div><div id=f_bioHide>"
+					  }
+					  html+="<li>"+data.titleList[i]+"["+data.statList[i]+"]"+data.linkList[i]+"</li>";
+					  
+				  }
+				  html+="</div>";
+				  $("#f_bio").html(html);
+				  $("#f_bioCon").show();
+			  } else {
+				  $("#f_bioCon").hide();
+			  }
+			  $("#f_bioHide").hide();
+			  $("#f_bioBtn").click(function(){
+					if($("#f_bioBtn").hasClass("open")){
+						$("#f_bioHide").hide();
+						$("#f_bioBtn").removeClass("open");
+					} else {
+						$("#f_bioHide").show();
+						$("#f_bioBtn").addClass("open");
+					}
+			  });
+		  }, error: function(){
+			  $("#f_bio").html("<li> 일시적인 서버 통신 장애가 있습니다. </li>");
+		  }
+	  });
+}
+
+function searchCreator(goCrt){
+	var controlNo = $("#controlNo").val();
+	var docType = $("#docType").val();
+	//$("#f_crtBtn").hide();
+	$.ajax({
+		  type:"POST",
+		  data : {controlNo : controlNo, docType : docType},
+		  url:goCrt,
+		  dataType:'json',
+		  async:false,
+		  success:function(data){
+			  if(data.creator != null && data.creator != "" ){
+				  $("#f_crtBtn").prop('href', 'http://sam.riss.kr/findDetailCreator.do?creatorNo='+data.creator);
+				  $("#f_crtBtn").show();
+			  } else {
+			  }
+		  }, error: function(){	
+		  }
+	  });
+}
+
+function goAvailabilityAnalysis(goRef, goCnt, goOri){
+	$("#f_downBox").hide();
+	$("#f_rentalBox").hide();	
+	$("#f_copyBox").hide();
+	$("#f_eddsBox").hide();
+	$("#f_cabBox").hide();
+	$("#f_exportBox").hide();
+	$("#f_snsBox").hide();
+	
+	drawRefChart("#f_viewChart", "KERIS_SAM_2016.RS_VIEW_ST", goRef);
+//	drawRefChart("#f_downChart", "KERIS_SAM_2016.RS_DOWNLOAD_ST", goRef);
+//	drawRefChart("#f_rentalChart", "KERIS_SAM_2016.RS_RENTAL_ST", goRef);
+//	drawRefChart("#f_copyChart", "KERIS_SAM_2016.RS_COPY_ST", goRef);
+//	drawRefChart("#f_eddsChart", "KERIS_SAM_2016.RS_EDDS_ST", goRef);
+//	drawRefChart("#f_cabChart", "KERIS_SAM_2016.RS_CAB_ST", goRef);
+//	drawRefChart("#f_exportChart", "KERIS_SAM_2016.RS_EXPORT_ST", goRef);
+//	drawRefChart("#f_snsChart", "KERIS_SAM_2016.RS_SNS_ST", goRef);
+	
+	analyticsCnt(goCnt);
+	
+}
+
+function goAvailabilityAnalysis2(goRef, goCnt, goOri){
+//	$("#f_downBox").hide();
+//	$("#f_rentalBox").hide();	
+//	$("#f_copyBox").hide();
+//	$("#f_eddsBox").hide();
+//	$("#f_cabBox").hide();
+//	$("#f_exportBox").hide();
+//	$("#f_snsBox").hide();
+	
+//	drawRefChart("#f_viewChart", "KERIS_SAM_2016.RS_VIEW_ST", goRef);
+	drawRefChart("#f_downChart", "KERIS_SAM_2016.RS_DOWNLOAD_ST", goRef);
+	drawRefChart("#f_rentalChart", "KERIS_SAM_2016.RS_RENTAL_ST", goRef);
+	drawRefChart("#f_copyChart", "KERIS_SAM_2016.RS_COPY_ST", goRef);
+	drawRefChart("#f_eddsChart", "KERIS_SAM_2016.RS_EDDS_ST", goRef);
+	drawRefChart("#f_cabChart", "KERIS_SAM_2016.RS_CAB_ST", goRef);
+	drawRefChart("#f_exportChart", "KERIS_SAM_2016.RS_EXPORT_ST", goRef);
+	drawRefChart("#f_snsChart", "KERIS_SAM_2016.RS_SNS_ST", goRef);
+	
+//	analyticsCnt(goCnt);
+	
+}
+
+function originalCheck(goOri){
+	var controlNo = $("#controlNo").val();
+	var docType = $("#docType").val();
+	var flag;
+	$.ajax({
+		  type:"POST",
+		  data : {controlNo : controlNo, docType : docType},
+		  url:goOri,
+		  dataType:'json',
+		  async:false,
+		  success:function(data){		  
+				  flag = data.flag;
+		  }, error: function(){	
+		  }
+	  });
+	return flag ;
+}
+
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+//******************************************************************
+//인용하기
+//******************************************************************
+function refApplyAjax(control_no, p_mat_type){
+	jQuery.ajax({
+	   type: "POST",
+	   dataType: 'json',
+	   url: "/search/refApplyAjax.do",
+	   data: {control_no:control_no,p_mat_type:p_mat_type},
+	   success : function(data){
+		   	var textArea;
+		   	var text = "";
+		   	var agentNavi = navigator.userAgent.toLowerCase();
+		   	if (agentNavi.match(/ipad|iphone/i)) {
+			   textArea = document.createElement('textArea');
+			   text = data.result;
+			   text = text.replace(/(<([^>]+)>)/ig, "");
+			   textArea.value = text;
+		   	} else {
+			   textArea = document.createElement('div');
+			   textArea.innerHTML = "";
+			   textArea.innerHTML = data.result;
+			   text = textArea.textContent;
+		   	}
+		   
+		   	textArea.style.position = "absolute";
+	   		textArea.style.top = 0;
+		   	textArea.style.left = 0;
+		   	textArea.style.width = -1;
+		   	textArea.style.margin = 0;
+		   	textArea.style.padding = 0;
+		   	textArea.style.border = 0;
+		   	document.body.appendChild(textArea);
+		   	var range = document.createRange();
+//		   	range.selectNodeContents(textArea);
+		   	range.selectNode(textArea);
+		   	var selection = window.getSelection();
+		   	selection.removeAllRanges();
+		   	selection.addRange(range);
+		   	
+		   	if (agentNavi.match(/ipad|iphone/i)) {
+		   		textArea.setSelectionRange(0, 999999);
+		   	}
+		   	try {
+		   		success = document.execCommand('copy', false, null);
+		   	} catch(e) {
+		   		success = false;
+		   	}
+			
+		   	if (success) {
+		   		document.body.removeChild(textArea);
+		   		alert("논문의 정보가 복사되었습니다. 논문을 인용할 위치에서 붙여넣기 하세요.");
+		   	} else {
+		   		document.body.removeChild(textArea);
+		   		prompt("해당 브라우저는 복사기능을 지원하지 않습니다. 선택 후 Ctrl + C 를 눌러주세요.", text);
+		   	}
+		   	
+		   	selection.removeAllRanges();
+	   },
+	   error: function(result){
+	   }
+	});
+}
+
+function subjectContents(subject) {
+  jQuery.ajax(
+      { url : "/search/detail/SubjectSearchAjax.do",
+        data : jQuery(document.f).serialize()+"&subject="+encodeURI(subject),
+        dataType : "xml",
+        success : function(result) {
+        	var vHtml = [];
+            var root = result.getElementsByTagName("map");
+            if (root.length > 0) {
+            	var len = root.length;
+            	if(len > 5) len = 5;
+                for (var i = 0; i < len; i++) {
+                	var entry = root[i].getElementsByTagName("entry");
+                    var values = new Array();
+                    for (var k = 0; k < entry.length; k++){
+                        var value = entry[k].getElementsByTagName("string");
+                        var key = getXmlValue(value[0]);
+                        if (key == "AJAX_MODEL") {
+                        	vHtml.push('<li>');
+                        	vHtml.push('<p class="tit">데이터가 존재 하지 않습니다.</p>');
+                        	vHtml.push('</li>');
+                        	$(".thesisTopicCont .relationThesis div ul").html(vHtml.join(''));
+                            return;
+                        }
+                        var val = getXmlValue(value[1]);
+                        values[key] = val;
+                    }
+                	
+                    var title = values['title'];
+                    if(typeof values['title_tran'] != 'undefined') title += "(" + values['title_tran'] + ")";
+                    var p_mat_type;
+                    if (document.f.p_mat_type.value == '1a0202e37d52c72d') p_mat_type = 'A' ;
+                    else p_mat_type = 'U';
+                    var key = p_mat_type + values['key'];
+                	vHtml.push('<li>');
+                	vHtml.push('<p class="tit">');
+                	vHtml.push('<a href="/link?gubun=S&id=' + key + '">' + title + '</a>');
+                	vHtml.push('</p>');
+                    if (typeof values['title'] != 'undefined') {
+                		vHtml.push('<ul class="info">');
+                   	 	if(checkNULL(values['creator'])!='') vHtml.push('<li>' + values['creator'] + '</li>');
+                   	 	if(checkNULL(values['publisher'])!='') vHtml.push('<li>' + values['publisher'] + '</li>');
+                   	 	if(checkNULL(values['dvolume'])!='') vHtml.push('<li>' + values['dvolume'] + '</li>');
+                   	 	if(checkNULL(values['dno'])!='') vHtml.push('<li>' + values['dno'] + '</li>');
+                   	 	if(checkNULL(values['pyear'])!='') vHtml.push('<li>' + values['pyear'] + '</li>');
+                   	 	if(checkNULL(values['regnm'])!='') vHtml.push('<li>' + values['regnm'] + '</li>');
+                   	 	vHtml.push('</ul>');
+                    }
+                    
+                    vHtml.push('</li>');
+                }
+                
+                $(".thesisTopicCont .relationThesis div ul").html(vHtml.join(''));
+
+				//drawSubjectChart();
+            } else {
+            	vHtml.push('<li>');
+            	vHtml.push('<p class="tit">데이터가 존재 하지 않습니다.</p>');
+            	vHtml.push('</li>');
+            	$(".thesisTopicCont .relationThesis div ul").html(vHtml.join(''));
+            }
+        },
+        error: function(content,result){
+        	var vHtml = [];
+        	vHtml.push('<li>');
+        	vHtml.push('<p class="tit">데이터가 존재 하지 않습니다.</p>');
+        	vHtml.push('</li>');
+        	$(".thesisTopicCont .relationThesis div ul").html(vHtml.join(''));
+          }
+      }
+  );
+  drawSubjectChart(subject,'C');
+  drawSubjectChart(subject,'A');
+}
+
+
+function fnKorSearch() {
+	var frm = document.TopSearch;
+	
+	frm.isDetailSearch.value = "Y";
+	frm.strQuery.value = "";
+	frm.exQuery.value = "";
+	frm.exQueryText.value = "";
+	frm.p_year1.value = "";
+	frm.p_year2.value = "";
+	frm.iStartCount.value = 0;
+	frm.resultKeyword.value = "";
+	frm.limiterList.value = "";
+	frm.limiterListText.value = "";
+	frm.facetList.value = "";
+	frm.facetListText.value = "";
+	frm.fsearchDB.value = "";
+	frm.query.value = "";
+	frm.icate.value = "";
+	frm.colName.value = "re_a_kor";
+	
+	frm.queryText.value = "znDsTitle," + $("input[name=title]").val() + "@op,AND@znAll," +  $("input[name=schText]").val();
+	frm.action = "/search/Search.do";
+	frm.submit();
+}
+
+function fnKorKeyPress(e) {
+	if(e.keyCode == 13) {
+		fnKorSearch();
+	}
+	return false;
+}
+
+
+function drawSubjectChart(subjectNo,statType){	  
+	var chartNm = "";
+	if(statType=="C"){
+		chartNm = ".yearly1 > .graphW > .chart";
+	}else if(statType=="A"){
+		chartNm = ".yearly2 > .graphW > .chart";
+	}
+	$.ajax({
+		  type:"POST",
+		  data : {subjectNo : subjectNo, statType : statType},
+		  url:"/detail/subjectYearCntChart.do",
+		  dataType:'json',
+		  success:function(data){
+			  Highcharts.setOptions({lang: {numericSymbols: [],thousandsSep:","}});
+			  $(chartNm).highcharts({
+			      	chart : {backgroundColor: '#F8F8F8', style: {fontFamily: "Nanum Gothic"}},
+		            title: {text: '', style: {display: 'none'}}, 
+		            subtitle: {text: '', style: {display: 'none'}},
+		            credits: {enabled: false},
+					exporting: {enabled: false},
+		            xAxis: {categories: data.yearList},
+		            yAxis: {
+		                title: {text: '',style: {display: 'none'}},
+		                plotLines: [{value: 0,width: 1,color: '#808080'}],
+		                min: 0
+		            },
+		            tooltip: {valueSuffix: '건'},
+		            legend: {layout: 'vertical',align: 'right',verticalAlign: 'top',borderWidth: 0,floating : true},
+		            plotOptions: {
+		                series: {
+		                    cursor: 'pointer',
+		                    point: {
+		                        events: {
+		                            click: function (e) {
+		                                hs.htmlExpand(null, {
+		                                    pageOrigin: {x: e.pageX,y: e.pageY},
+		                                    headingText: this.series.name,
+		                                    maincontentText: this.category +'년 : '+ this.y +' 건',
+		                                    width: 150
+		                                });
+		                            }
+		                        }
+		                    },
+		                    marker: {lineWidth: 1}
+		                }
+		            },
+		            series: [
+						{
+	            		name: '건수',
+	            		data: data.cntList, 
+	            		color: "#ff7334",
+	            		zoneAxis : 'x',
+	                	zones:[{value:9}, {dashStyle:'dot'}]
+            			}
+						]
+		        });
+		  }, error: function(request,status,error){
+		  }
+	  }); 
+}
+
+
+
+
+
+//2019.10
+function subjectThesisAnalysis(goUri){
+	var controlNo = $("#controlNo").val();
+	var docType = $("#docType").val();
+	var flag;
+	var reControlNo = "";
+	if(docType=="T"){
+		reControlNo = lpad(controlNo, 12, "0");
+	}else{
+		reControlNo = controlNo;
+	}
+	//reControlNo="000013662499";
+	var fInit = "";
+	$.ajax({
+		  type:"POST",
+		  data : {controlNo : reControlNo, docType : docType,statType:"S"},
+		  url:goUri,
+		  dataType:'json',
+		  async:false,
+		  success:function(data){
+				//console.log(data.subjectList.length);
+				if(data.subjectList.length>0){
+				for(var i=0;i<data.subjectList.length;i++){
+					if(i==0){
+						fInit = data.subjectList[i].subjectNo;
+						$(".thesisTopicTop > ul").append("<li role=\"tab\" id=\""+data.subjectList[i].subjectNo+"\" class=\"on\"><a href=\"javascript:void(0);\" onclick=\"javascript:subjectRelThesis('"+data.subjectList[i].subjectNo+"');\">"+data.subjectList[i].subjectNm+"</a></li>");
+					}else{
+						$(".thesisTopicTop > ul").append("<li role=\"tab\" id=\""+data.subjectList[i].subjectNo+"\"><a href=\"javascript:void(0);\" onclick=\"javascript:subjectRelThesis('"+data.subjectList[i].subjectNo+"');\">"+data.subjectList[i].subjectNm+"</a></li>");
+					}
+				}								
+				subjectRelThesis(fInit);
+				}
+		  }, error: function(e){	
+		  }
+	  });
+}
+
+function lpad(str, padLen, padStr) {
+    if (padStr.length > padLen) {
+        console.log("오류 : 채우고자 하는 문자열이 요청 길이보다 큽니다");
+        return str;
+    }
+    str += ""; // 문자로
+    padStr += ""; // 문자로
+    while (str.length < padLen)
+        str = padStr + str;
+    str = str.length >= padLen ? str.substring(0, padLen) : str;
+    return str;
+}
+
+
+function subjectRelThesis(subjectNo) {
+	drawSubjectChart(subjectNo,"C");
+	drawSubjectChart(subjectNo,"A");
+	$(".thesisTopicCont .relationThesis div ul > li").remove();
+	var docType = $("#docType").val();
+  var controlNo = $("#controlNo").val();
+  var reControlNo = "";
+	if(docType=="T"){
+		reControlNo = lpad(controlNo, 12, "0");
+	}else{
+		reControlNo = controlNo;
+	}
+  	//reControlNo="000013662499";
+  jQuery.ajax(
+      { url : "/detail/subjectYearCntChart.do",
+		data : {controlNo : reControlNo, docType:docType ,subjectNo : subjectNo,statType:"S2"},
+        dataType : "json",
+        success : function(data) {
+			if(data.list.length>0){
+
+				for(var i=0;i<data.list.length;i++){
+					var tHtml = "";
+					tHtml = tHtml+"<li><p class=\"tit\"><a href=\"/link?id="+data.list[i].docType+data.list[i].controlNo+"\">"+data.list[i].title+"</a></p>";
+					tHtml = tHtml+"<ul class=\"info\"><li>"+data.list[i].creator+"</li><li>"+data.list[i].publisher+"</li><li>"+data.list[i].publishDate+"</li></ul>";
+					tHtml = tHtml+"</li>";
+					$(".thesisTopicCont > .relationThesis > div > ul").append(tHtml);
+				}
+			}else{
+				var vHtml = [];
+        	vHtml.push('<li>');
+        	vHtml.push('<p class="tit">데이터가 존재 하지 않습니다.</p>');
+        	vHtml.push('</li>');
+        	$(".thesisTopicCont .relationThesis div ul").html(vHtml.join(''));
+			}
+        },
+        error: function(content,result){
+        	var vHtml = [];
+        	vHtml.push('<li>');
+        	vHtml.push('<p class="tit">데이터가 존재 하지 않습니다.</p>');
+        	vHtml.push('</li>');
+        	$(".thesisTopicCont .relationThesis div ul").html(vHtml.join(''));
+          }
+      }
+  );  
+}
+
+function analysisTab3Click(){
+		fetchData("/detail/creatorRelationAnalysis.do");//호출부분		
+		thesisListChart("/detail/creatorRelationAnalysisThesisListChart.do","P");
+		thesisListChart("/detail/creatorRelationAnalysisThesisListChart.do","C");
+		thesisListChart("/detail/creatorRelationAnalysisThesisListChart.do","S");
+}

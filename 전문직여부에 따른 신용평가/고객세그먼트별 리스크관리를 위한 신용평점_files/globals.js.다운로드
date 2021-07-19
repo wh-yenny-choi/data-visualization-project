@@ -1,0 +1,65 @@
+var maxWidth = 550;//그래프 넓이 
+//var maxWidth = Math.max(600, Math.min(screen.height, screen.width) - 250);
+//console.log(maxWidth);
+var outerRadius = (maxWidth / 2), innerRadius = outerRadius - 100;//outerRadius 바깥반경 ,innerRadius 안쪽반경
+var iText, iChords, eText, eChords;
+var instanceName = "";
+var usaLab = "";
+var comLab = "";
+var angleRange = 320,  countries, e_labels = [], e_chords = [], i_labels = [], i_chords = [], topCountryCount = 0, topCountryCount2 = 0, e_buf_indexByName = {}, e_indexByName = {}, e_nameByIndex = {}, i_indexByName = {}, i_nameByIndex = {}, i_buf_indexByName = {}, export_countries = [], import_countries = [], e_colorByName = {}, i_colorByName = {},  monthlyExports = [], monthlyImports = [], countriesGrouped, usa1, com2, delay = 600, refreshIntervalId,  running = true, formatNumber = d3.format(",.0f"), formatCurrency = function(d) {
+	return "-$" + formatNumber(d);
+}, eTextUpdate, eChordUpdate, TextUpdate, iChordUpdate;
+
+//툴팁부분
+var toolTip = d3.select(document.getElementById("toolTip"));
+var header = d3.select(document.getElementById("head"));
+var header1 = d3.select(document.getElementById("header1"));
+var header2 = d3.select(document.getElementById("header2"));
+
+//그래프 색상 범위
+var e_fill = d3.scale.ordinal().range([ "#b4d0e1", "#c3e3e6", "#6198c9", "#498cc3", "#2d669b" ]);//유사연구  
+var i_fill = d3.scale.ordinal().range([ "#ff874a", "#ff7b33", "#e04a00", "#feb58c", "#ffc4a4" ]);//공동연구
+
+
+//svg 
+var svg = d3.select(document.getElementById("svgDiv"))
+.style("width",(outerRadius * 2+150) + "px")
+.style("height",(outerRadius * 2 -50) + "px")
+.append("svg").attr("id", "svg")
+.style("width", (outerRadius * 2+150) + "px")
+.style("height",(outerRadius * 2 -50) + "px");
+
+var export_chord = d3.layout.arc_chord().padding(.05).sortSubgroups(d3.descending).sortChords(d3.descending).yOffsetFactor(-0.8);
+var import_chord = d3.layout.arc_chord().padding(.05).yOffsetFactor(0.7).sortSubgroups(d3.descending).sortChords(d3.descending);
+var arc = d3.svg.arc().innerRadius(innerRadius).outerRadius(innerRadius + 5);
+
+var totalGroup = svg.append("g").attr("transform","translate(" + (77) + "," + (-94 ) + ")");
+var dGroup = totalGroup.append("g").attr("class", "mainLabel");
+ 
+dGroup.append("text")
+.attr("class","mainLabel")
+.attr("transform", "translate(" + (outerRadius - 21) + "," + (outerRadius + 30) +")")
+.style("font-size","0px");
+
+dGroup.append("polygon")
+.attr("width","60").attr("height","25").attr("id","polygon2")
+//.attr("points", "116,39 100,79,5,80 20,40")
+//.attr("points", "102,50 91,72,15,73 27,50")
+.attr("points", "99,45 81,76,9,76,31,45")
+.style("fill", "#e04a00")
+.style("opacity",1).attr("transform","translate(" + (outerRadius-24.5) + "," + (outerRadius+10) + ")");
+dGroup.append("polygon")
+.attr("width","60").attr("height","25").attr("id","polygon1")
+.attr("points", "102,45 81,76,9,76,33,45")
+.style("fill", "#2d669b")
+.style("opacity",1).attr("transform","translate(" + (outerRadius-95.5) + "," + (outerRadius+10) + ")");
+
+
+//dGroup.append("text").attr("class", "thirdLabel").attr("id","thirdLabelId").attr("transform","translate(" + (outerRadius+10) + "," + (outerRadius+74) + ")").style("font-size", "12px");
+//dGroup.append("text").attr("class", "secondLabel").attr("id","secondLabelId").attr("transform","translate(" + (outerRadius - 70) + "," + (outerRadius + 74) + ")").style("font-size", "12px");
+dGroup.append("text").attr("class", "thirdLabel").attr("id","thirdLabelId").attr("transform","translate(" + (outerRadius+8) + "," + (outerRadius+74) + ")").style("font-size", "12px");
+dGroup.append("text").attr("class", "secondLabel").attr("id","secondLabelId").attr("transform","translate(" + (outerRadius - 65) + "," + (outerRadius + 74) + ")").style("font-size", "12px");
+
+var gY = (outerRadius - (innerRadius * .8 / 2));
+var eGroup = totalGroup.append("g").attr("class", "exports").attr("transform","translate(" + (outerRadius-3) + "," + (outerRadius + 70) + ") rotate(-90 0 0)");
+var iGroup = totalGroup.append("g").attr("class", "imports").attr("transform","translate(" + (outerRadius+4) + "," + (outerRadius + 70) + ") rotate(-90 0 0)");

@@ -1,0 +1,51 @@
+﻿var keywordRanking = {
+    url : '/search/keywordRanking.do',
+   
+    open : function() {
+        if(typeof jQuery != 'undefined') {
+            jQuery.ajax({
+                url : this.url,
+                type: 'post',
+                dataType : "json",
+                success : function(result) {
+                	var vHtml = [];
+                	if (result.length > 0) {
+                		for (var i = 0; i < result.length; i++) {
+                			vHtml.push('<li><span class="num">' + (i+1) + '</span><a href="javascript:void(0);" onclick="javascript:clickInsert(\'HOME>메인>검색>RISS인기검색어\', \'http://www.riss.kr/search/Search.do\', \'\', \'\');keywordRanking.query(this);">' + result[i] + '</a></li>'); 
+                		}
+                	}
+                	
+                	$("#keywordRanking .keywordList > ul").html(vHtml.join(''));
+                	$("#keywordRanking .keywordAll > ul").html(vHtml.join(''));
+                },
+                error: function(content, result){}
+            });
+        } else if (typeof Ajax != 'undefined') {
+            new Ajax.Request(this.url, {
+                onSuccess : function(result) {
+                 	var vHtml = [];
+                	if (result.length > 0) {
+                		for (var i = 0; i < result.length; i++) {
+                			vHtml.push('<li><span class="num">' + (i+1) + '</span><a href="javascript:void(0);" onclick="clickInsert(\'HOME>메인>검색>RISS인기검색어\', \'http://www.riss.kr/search/Search.do\', \'\', \'\');javascript:keywordRanking.query(this);">' + result[i] + '</a></li>'); 
+                		}
+                	}
+                	
+                	$("#keywordRanking .keywordList > ul").html(vHtml.join(''));
+                	$("#keywordRanking .keywordAll > ul").html(vHtml.join(''));
+                },
+                onFailure: function(result){}
+            });
+        }
+    }, 
+    query : function(obj) {
+    	var query = $(obj).text();
+        var f = document.TopSearch;
+        f.query.value = query;
+        
+        $("form[name=TopSearch] .search .btnSearch").trigger("click");
+    }
+}
+
+$(document).ready(function(e) {
+	keywordRanking.open();
+});

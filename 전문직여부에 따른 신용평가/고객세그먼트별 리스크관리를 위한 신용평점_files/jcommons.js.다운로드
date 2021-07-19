@@ -1,0 +1,347 @@
+/////////////////////////// riss2.0 common function///////////////////////////////////
+if(typeof jQuery=='undefined'){
+        document.write('<script type="text/javascript" src="/commons/js/jquery/jquery-1.11.0.min.js"><\/script>');
+}
+/* value check */
+var FormValueCheck={
+    message: "빈값을 채우세요",
+    valueCheck: function(formObj,returnResultArrayFlag,msg){
+                    if(msg!='undefined' || msg!='')
+                        this.message=msg;
+                    var result=new Array();
+                    var form=jQuery(formObj);
+                    var formArray=form.serializeArray();
+                    jQuery.each(form.serializeArray(),function(idx,ele){
+                        var element=document.getElementsByName(ele.name)[0];
+                        if(element.getAttribute('notNull')=='Y'){
+                            var attr=element.getAttribute('type');
+                            if(attr=='radio'){
+                                result=FormValueCheck.checkRadioInputVal(element,result);
+                            }else{
+                                if(element.value=='' || element.value=='undefined'){
+                                    result.push(element.name);
+                                }
+                            }
+                        }
+                    });
+                    if(returnResultArrayFlag==true){
+                        return result;
+                    }else{
+                        if(result.length>0){
+                            alert(this.message);
+                            return false;
+                        }else{
+                            return true;
+                        }
+                    }
+    },
+    checkRadioInputVal: function(obj,result){
+        var radioObj=document.getElementsByName(obj.name);
+        if(this.radio_check(radioObj)==false){
+            result.push(obj.name);
+        }
+        return result;
+    },
+    radio_check: function(obj){
+        var len=obj.length
+        for(i=0;i<len;i++){
+            if(obj[i].checked){
+                return true;
+            }
+        }
+        return false;
+    }
+};
+var ModalPopup={
+    bgDiv: document.createElement('div'),
+    contentDiv: document.createElement('div'),
+    open : function (content, event_flag,options ){
+        //if(jQuery.browser.IE6){
+        //    this.cLeft=document.documentElement.scrollWidth;
+        //    this.cTop=document.documentElement.scrollHeight;
+        //}else{
+            this.cLeft=document.documentElement.clientWidth;
+            this.cTop=document.documentElement.clientHeight;
+        //}
+    this.bg_options = jQuery.extend({
+      duration:  900,
+      from: 0.0,
+      to:  0.5,
+      backGround: "#FFFFFF",
+      zindex: 99998,
+      width: "100%",
+      height: document.body.scrollHeight,
+      position : "fixed"
+    }, options || {});
+        jQuery(this.contentDiv).html(content);
+        jQuery(this.bgDiv).css({
+            height: document.documentElement.scrollHeight+"px",
+            width: this.bg_options.width,
+            top: "0px",
+            left: "0px",
+            contentX : "0px",
+            contentY : "0px",
+            zIndex: this.bg_options.zindex,
+            background: this.bg_options.backGround,
+            position: 'absolute',
+            opacity : this.bg_options.from
+        });
+        jQuery(this.contentDiv).attr("id","ModalContent");
+        document.body.appendChild(this.bgDiv);
+        document.body.appendChild(this.contentDiv);
+        jQuery(this.contentDiv).css({
+            //position: jQuery.browser.IE6==true?'absolute':this.bg_options.position,
+            position: this.bg_options.position,
+            zIndex: 99999,
+            textalign : 'center'
+        });
+        //offset 값을 측정하기 위해 top,left값은 나중에 설정
+        jQuery(this.contentDiv).css({
+            top: ((this.cTop/2)-(this.contentDiv.offsetHeight/2))+"px",
+            left: ((this.cLeft/2)-(this.contentDiv.offsetWidth/2))+"px"
+        });
+      //설정된 내용의 좌표값이 있을경우
+        if(this.bg_options.contentX!="0px")
+            jQuery(this.contentDiv).css({ left : this.bg_options.contentX});
+        if(this.bg_options.contentY!="0px")
+            jQuery(this.contentDiv).css({ top : this.bg_options.contentY});
+        jQuery(this.bgDiv).fadeTo(this.bg_options.duration,this.bg_options.to);
+        if(event_flag==true ||typeof event_flag=='undefined' )
+            jQuery(this.bgDiv).bind('click', this.close);
+        //window가 resize 될경우 위치값 및 백그라운드 크기 다시 계산
+        window.onresize=function(){
+            ModalPopup.resize();
+        };
+    },
+    close : function (flag){
+        if(typeof ModalPopup=='undefined' ||  flag=='false'){
+            try{
+                if(confirm('알림창을 닫으시겠습니까?')){
+                //The first child of the div is the bold element.
+                    if(ModalPopup.bgDiv.style.display!='none'){
+                       document.body.removeChild(ModalPopup.bgDiv);
+                       document.body.removeChild(ModalPopup.contentDiv);
+                       window.onresize='';
+                    }else{
+                        self.close();
+                    }
+                }
+          }catch(x){
+            alert(x.message);
+            alert("이미 팝업이 닫혀 있습니다!")
+            document.location.reload();
+          }
+        }else{
+            try{
+                if(ModalPopup.bgDiv.style.display!='none'){
+                    document.body.removeChild(ModalPopup.bgDiv);
+                    document.body.removeChild(ModalPopup.contentDiv);
+                    window.onresize='';
+                }else{
+                    self.close();
+                }
+            }catch(ex){
+                alert(x.message);
+                alert("이미 팝업이 닫혀 있습니다!")
+                document.location.reload();
+            }
+        }
+    },
+    resize : function(){
+        jQuery(this.bgDiv).css({
+            height: document.documentElement.scrollHeight+"px"
+        });
+        jQuery(this.contentDiv).css({
+            top: ((this.cTop/2)-(this.contentDiv.offsetHeight/2))+"px"
+        });
+        jQuery(this.contentDiv).css({
+            left : ((screen.availWidth/2)-(this.contentDiv.offsetWidth/2))+"px"
+        })
+    }
+}
+function fileSizeError(){
+    ModalPopup.open("<span style='line-height:160%;font-size:20px'><b>파일 사이즈가 허용범위(1Mbyte)를 벗어났습니다.</b></span>");
+    //layerAlert("파일 사이즈가 허용범위(5M)를 벗어났습니다.");
+}
+//********************************************
+//TextArea입력값에 대한 길이를 체크한다.
+//사용법 : checkTextAreaLength(objId, Name, maxLength, lengthLableId)
+//********************************************
+var db=""; //임시로 입력값을 저장할 변수
+function checkTextAreaLength(objId, Name, maxLength, lengthLableId){
+    var value = document.getElementById(objId).value;
+    if (db != value)
+    {
+     var length = calBytes(value);
+        // 입력된 길이를 표시한다.
+        $(lengthLableId).innerHTML = length;
+        if(length > maxLength){
+            alert(Name+"은(는) "+maxLength+"bytes까지만 입력하실 수 있습니다.");
+            var cutStr = cutByteString(value, maxLength);
+            document.getElementById(objId).value = cutStr;
+        }
+     db = value;
+ }
+ else
+ {
+ }
+ var inputStr = "checkTextAreaLength('"+objId+"', '"+Name+"', "+maxLength+", '"+lengthLableId+"')";
+ setTimeout(inputStr, 10);
+}
+
+// 이메일, 본인 확인 선택
+function ChangePasswd(k_id, birth, kname, email){
+    jQuery.ajax(
+            { url : "/ChangePasswd.do",
+              data : {
+                k_id : checkNULL(k_id),
+                birth : checkNULL(birth),
+                kname : checkNULL(kname),
+                email : checkNULL(email)
+              },
+              dataType : "html",
+              success : function(result){ModalPopup.open(result)},
+              error: function(content,result){alert(result);}
+            }
+        );
+}
+
+function findIdPasswd(birth,kname,email){
+    jQuery.ajax(
+            { url : "/FindIdPasswd.do",
+              data : {
+                birth : checkNULL(birth),
+                kname : checkNULL(kname),
+                email : checkNULL(email)
+              },
+              dataType : "html",
+              success : function(result){ModalPopup.open(result)},
+              error: function(content,result){alert(result);}
+            }
+        );
+}
+//******************************
+//라디오버튼 선택값 읽기
+//사용방법getRadioValue(라디오버튼 name);
+//리턴값 : 선택된 값이 없다면 null OR 선택값
+//******************************
+function getRadioValue(el) {
+    var value;
+    if(typeof el=='object'){
+        for(var i=0;i<el.length;i++){
+            if(el[i].checked==true)
+                value=el[i].value;
+        }
+    }else if(typeof el=='string')
+        value = jQuery("input:radio[name='"+el+"']:checked").val();
+ if(value == 'undifined') {
+     return null;
+ } else{
+     return value;
+ }
+}
+/* check all */
+function checkAll(control, check_box){
+    try{
+        if (check_box) {
+            if (check_box.length) {
+                for (i=0;i<check_box.length;i++) {
+                     if (!check_box[i].disabled) {
+                         check_box[i].checked = control.checked;
+                         jQuery(check_box).trigger('updateState');
+                     }
+                 }
+            }
+            else {
+                check_box.checked = control.checked;
+                jQuery(check_box).trigger('updateState');
+            }
+        }
+ }catch(ex){alert(ex.message);}
+}
+/* checkAllSearch */
+function checkAllSearch(control, check_box,check_box2){
+    try{
+        if (check_box) {
+            if (check_box.length) {
+                for (i=0;i<check_box.length;i++) {
+                     if (!check_box[i].disabled) {
+                         check_box[i].checked = control.checked;
+                         //jQuery(check_box).trigger('updateState');
+                     }
+                 }
+            }
+            else {
+                check_box.checked = control.checked;
+                //jQuery(check_box).trigger('updateState');
+            }
+        }
+        if (check_box2) {
+            if (check_box2.length) {
+                for (i=0;i<check_box2.length;i++) {
+                    if (!check_box2[i].disabled) {
+                        check_box2[i].checked = control.checked;
+                        //jQuery(check_box2).trigger('updateState');
+                    }
+                }
+            }
+            else {
+                check_box2.checked = control.checked;
+                //jQuery(check_box2).trigger('updateState');
+            }
+        }
+ }catch(ex){alert(ex.message);}
+}
+//아이디 비밀번호 찾기 레이어
+function findIdPwd(){
+    jQuery.ajax({
+        type: "POST",
+        url: "/FindIdPasswd.do?noEmail=Y",
+        success : function(html){
+                    ModalPopup.open(html, true, {backGround: '#000'});
+                },
+        error: function(result){
+                    alert("조회시 일시적인 문제가 발생하였습니다.\n다시 시도해 주세요.");
+                }
+    });
+}
+function dataValidation(control_no,p_mat_type){
+    var result="";
+    var pars="";
+    if(typeof control_no.length=='undefined' && typeof control_no.length=='undefined'){
+        pars="control_no="+control_no.value+"&p_mat_type="+p_mat_type.value;
+    }else{
+        for(var i=0;i<control_no.length;i++){
+            if(i==0)
+                pars+="control_no="+control_no[i].value;
+            else
+                pars+="&control_no="+control_no[i].value;
+        }
+        for(var i=0;i<p_mat_type.length;i++){
+            if(i==0)
+                pars+="&p_mat_type="+p_mat_type[i].value;
+            else
+                pars+="&p_mat_type="+p_mat_type[i].value;
+        }
+    }
+    //alert(pars);
+    jQuery.ajax({
+        url: "/search/DataValidationAjax.do",
+        dataType : "text",
+        async: false,
+        data: pars,
+        type : 'post',
+        success : function(text){
+                    result=text;
+                },
+        error: function(result){
+                    result=1;
+                    alert("조회시 일시적인 문제가 발생하였습니다.\n다시 시도해 주세요.");
+                }
+    });
+    return result;
+}
+var isMSafari= /Apple.*Mobile.*Safari/.test(navigator.userAgent);
+if(typeof commonFunction=='undefined'){
+    document.write('<script type="text/javascript" src="/commons/js/commonFunction.js"><\/script>');
+}

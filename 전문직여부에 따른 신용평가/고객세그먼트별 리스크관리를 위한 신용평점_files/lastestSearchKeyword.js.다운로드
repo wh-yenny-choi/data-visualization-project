@@ -1,0 +1,178 @@
+//var flag='Y';
+var openSearchKeyword = {
+    url : '/search/LatestSearchKeywordAjax.do',
+    open : function(){
+        if (typeof jQuery!='undefined') {
+        	
+            jQuery.ajax({
+                url : this.url,
+                type  : "post",
+                dataType : "html",
+                success : function(result){
+        	    	$(".myKeywordW.layerPop .divList").html(result);
+//        	    	$("#myKeyword").css("display", "");+
+                },
+                error: function(content,result){alert(result);}
+            });
+        }else if (typeof Ajax!='undefined'){
+            new Ajax.Request(this.url,{
+                onSuccess : function(result){
+        	    	$(".myKeywordW.layerPop .divList").html(result);
+                },
+                onFailure: function(result){alert(result.status+" : "+result.statusText);}
+            });
+        }
+    },
+    query : function(query,queryText,exQuery,cate,cnt){
+        var f=document.last;
+        f.query.value=query;
+        f.queryText.value=queryText;
+        f.exQuery.value=exQuery;
+        f.searchCnt.value=cnt.replace(",","");
+        f.colName.value=cate;
+        f.action="/search/Search.do";
+        f.target="_self";
+        f.submit();
+    },
+    keywordSave : function(pars,searchCnt){
+        var pop=popupWindow("","keywordSave","635","570");
+        var f=document.last;
+        f.searchExpr.value=pars;
+        f.searchCnt.value=searchCnt;
+        f.loginFlag.value = "1";
+        f.target="keywordSave";
+        f.action="/search/MyQueryCreateView.do";
+        f.submit();
+        f.loginFlag.value = "";
+    },
+    rss : function(pars,searchCnt){
+        var pop=popupWindow("","keywordSave","635","570");
+        var f=document.last;
+        f.searchExpr.value=pars;
+        f.searchCnt.value=searchCnt;
+        f.loginFlag.value = "1";
+        f.target="keywordSave";
+        f.action="/search/MyRssCreateView.do";
+        f.submit();
+        f.loginFlag.value = "";
+    }
+}
+function delKeywordForTodayList(gubun, prow) {
+    try{
+        if(gubun == 'all') {
+            if(confirm('초기화 하시겠습니까?')) {
+                jQuery.ajax(
+                    {
+                        url : "/search/DelKeywordForTodayListAjax.do",
+                        type  : "post",
+                        data : {
+                            prow : gubun
+                        },
+                        dataType : "text",
+                        success : function(result){
+                        	openSearchKeyword.open();
+                        },
+                        error: function(content,result){
+                        }
+                    }
+                );
+            }
+        } else {
+            jQuery.ajax(
+                {
+                    url : "/search/DelKeywordForTodayListAjax.do",
+                    type  : "post",
+                    data : {
+                        prow : prow
+                    },
+                    dataType : "text",
+                    success : function(result){
+                    	openSearchKeyword.open();
+                    },
+                    error: function(content,result){
+                    }
+                }
+            );
+        }
+    }catch(ex){}
+}
+function delDocsForTodayList(gubun, prow, obj) {
+        if(gubun == 'all') {
+            if(confirm('초기화 하시겠습니까?')) {
+                jQuery.ajax(
+                    {
+                        url : "/search/DelDocsForTodayListAjax.do",
+                        type  : "post",
+                        data : {
+                            prow : gubun
+                        },
+                        dataType : "text",
+                        success : function(result){
+                        	getTodayViewContents();
+                        },
+                        error: function(content,result){
+                        }
+                    }
+                );
+            }
+        } else {
+            jQuery.ajax(
+                {
+                    url : "/search/DelDocsForTodayListAjax.do",
+                    type  : "post",
+                    data : {
+                        prow : prow
+                    },
+                    dataType : "text",
+                    success : function(result){
+                    	getTodayViewContents();
+                    },
+                    error: function(content,result){
+                    }
+                }
+            );
+        }
+}
+
+function getTodayViewContents() {
+	jQuery.ajax({
+	    url : "/search/getTodayViewContents.do",
+	    type  : "post",
+	    dataType : "json",
+	    success : function(result){
+	    	var vHtml = [];
+	    	$("#today_view").html('');
+	    	vHtml.push('<ul>');
+	    	if (result.length > 0) {
+        		for (var i = 0; i < result.length; i++) {
+        			var mat_type = result[i].p_mat_type_name;
+        			
+        			vHtml.push('<li>');
+        			if (mat_type == "해외전자자료") {
+        				vHtml.push('<a href="/fsearch/DetailView.do?dbId='+ result[i].p_mat_type + '&amp;an=' + result[i].control_no + '" title="' + result[i].title + '">');
+        			} else {
+        				vHtml.push('<a href="/search/detail/DetailView.do?p_mat_type='+ result[i].p_mat_type + '&amp;control_no=' + result[i].control_no + '" title="' + result[i].title + '">');
+        			}
+        			var title = result[i].title;
+        			vHtml.push('<span>' + title.substring(0,14) + '</span>');
+        			vHtml.push('</a><a href="#redirect" onclick="javascript:delDocsForTodayList(\'sub\', \'' + (result.length - i) + '\', this);" class="dataDelete" title="삭제"><img src="/search/images/deleteList.png" alt="삭제"></a></li>');
+        			
+        			if (i == 4) break;
+
+        		}
+        		vHtml.push('</ul>');
+        		vHtml.push('<a href="/mylibrary/MyRecentlyViewdList.do" class="listMoreView" title="더보기"><span>더보기</span></a>');
+        		vHtml.push('<div class="deleteAll">');
+				vHtml.push('<a href="#redirect" class="btnDeleteAll" onclick="javascript:delDocsForTodayList(\'all\', \'' + result.length + '\');" title="전체삭제">전체삭제</a>');
+        		vHtml.push('</div>');
+        	} else {
+        		vHtml.push('<li><span>오늘 본 자료가 없습니다.</span></li>');
+        		vHtml.push('</ul>');
+        		vHtml.push('<a href="/mylibrary/MyRecentlyViewdList.do" class="listMoreView" title="더보기"><span>더보기</span></a>');
+        	}
+	    	
+	    	$("#today_view").html(vHtml.join(''));
+	    },
+	    error: function(content,result){alert(result);}
+	});
+}

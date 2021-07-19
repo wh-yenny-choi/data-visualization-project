@@ -1,0 +1,1123 @@
+//한자변환
+function ConvertHanja(flag,p_type){
+    var form=document.f;
+    form.convertFlag.value=flag;
+    form.target="_self";
+    form.method="get";
+    if(typeof p_type=='undefined')
+        form.action="/search/detail/DetailView.do";
+    else if(p_type=='S')
+        form.action="/search/series/SeriesDetailView.do";
+    else
+        form.action="/search/series/SeriesDetailView.do";
+    form.submit();
+}
+//오류접수
+var ErrorReceipt={
+    open: function(layerFlag){
+        //alert(jQuery(document.f).serialize());
+        jQuery.ajax(
+            { url : "/ErrorReceipt.do",
+              type  : "post",
+              data : jQuery(document.f).serialize()+"&layerFlag="+layerFlag,
+              dataType : "text",
+              success : function(result){
+                            if(jQuery.trim(result)=='0')
+                                alert('중복된 오류접수는 허용되지 않습니다.');
+                            else{
+                                if(layerFlag=='Y'){
+                                    //ModalPopup.open(result,false,{backGround:'#000000'})
+                                    var obj = window.open("", "errorReceipt", "width=780,height=930,status=no,menubar=no,resizable=yes,scrollbars=yes");
+                                    document.f.action="/ErrorReceipt.do?loginFlag=1";
+                                    document.f.target="errorReceipt";
+                                    document.f.submit();
+                                    document.f.target = "self";
+                                }else{
+                                    document.f.action="/ErrorReceipt.do";
+                                    document.f.submit();
+                                }
+                            }
+                        },
+                error: function(content,result){
+                    alert("조회시 일시적인 문제가 발생하였습니다.\n다시 시도해 주세요.");
+                    }
+            }
+        );
+    },
+    receipt : function(){
+        if(confirm('오류접수를 하시겠습니까?')){
+            var form=document.errorForm;
+            if(this.valueCheck(form)){
+                return true;
+            }
+            return false;
+        }else{
+            return false;
+        }
+    },
+    valueCheck : function(form){
+        var result=FormValueCheck.valueCheck(form,true);
+        if(result.length>0){
+            alert('필수값에 빈값이 있습니다. 깜박이는 필드를 확인하세요');
+            for(i=0;i<result.length;i++){
+                var element=document.getElementsByName(result[i])[0];
+                if(element.getAttribute("type")=="radio")
+                    element=document.getElementById(element.name+"_label");
+                new Effect.Highlight(element, {keepBackgroundImage:true});
+            }
+            return false;
+        }else{
+            return true;
+        }
+    }
+};
+function fulltextDownload(){
+    var isiPhone= /iPhone/.test(navigator.userAgent);
+    var isiPad= /iPad/.test(navigator.userAgent);
+    var isAndroid= /Android/.test(navigator.userAgent);
+    var form=document.f;
+    form.loginFlag.value="1";
+    var pars=jQuery(form).serialize();
+    if(isiPhone==true || isAndroid==true || isiPad==true){
+        if(isAndroid){
+            window.open("/search/download/FullTextDownload.do?"+pars,"FulltextDownload","status=0,toolbar=0,Titlebar=0,width=840,height=680,resizable=1");
+        }else{
+            var x=window.open("/search/download/FullTextDownload.do?"+pars,"FulltextDownload","status=0,toolbar=0,Titlebar=0,width=840,height=680,resizable=1");
+            if(x==null)
+                document.location.href="/etc/MobileAppleInfo.html";
+        }
+    }else{
+        window.open("/search/download/FullTextDownload.do?"+pars,"","status=0,toolbar=0,Titlebar=0,scrollbars=1,width=840,height=680,resizable=1"); // FulltextDownload  팝업Name 해제(복수의 원문보기 적용. 2013.09.06)
+    }
+}
+
+/*상세보기시 */
+function publicUrlDownload(urltype){
+    var isiPhone= /iPhone/.test(navigator.userAgent);
+    var isiPad= /iPad/.test(navigator.userAgent);
+    var isAndroid= /Android/.test(navigator.userAgent);
+    var form=document.f;
+    form.loginFlag.value="1";
+    form.url_type.value=urltype;
+    var pars=jQuery(form).serialize();
+   
+    window.open("/PublicPopup.do" ,"_blank", "left=540,top=240,width=550,height=240,status=no,menubar=no,resizable=yes,scrollbars=no");
+  
+}
+
+function urlDownload(urltype){
+    var isiPhone= /iPhone/.test(navigator.userAgent);
+    var isiPad= /iPad/.test(navigator.userAgent);
+    var isAndroid= /Android/.test(navigator.userAgent);
+    var form=document.f;
+    form.loginFlag.value="1";
+    form.url_type.value=urltype;
+    var pars=jQuery(form).serialize();
+    if(isiPhone==true || isAndroid==true || isiPad==true){
+        var x=window.open("/search/download/UrlLoad.do?"+pars);
+        if(x==null)
+            document.location.href="/etc/MobileAppleInfo.html";
+    }else{
+        window.open("/search/download/UrlLoad.do?"+pars);
+    }
+}
+
+
+function checkKyoboUrl(urlTypeW, urlTypeF, academicUserYn, isLogin) {
+	  if(isLogin == "2") {
+	    	if(academicUserYn == "Y") {
+	    		kyoboUrlDownload(urlTypeM);
+	    	} else {
+	    		kyoboUrlDownload(urlTypeW);
+	    	}
+	  } else {
+		    if(confirm('스콜라의 경우 소속기관이 구독 중이 아닌 이용자는  오후 4시부터 익일 오전 7시까지\nRISS 개인 로그인을 통해 무료로 원문보기를 사용하실 수 있습니다.\n\n개인로그인으로 전환 하시겠습니까?')) {
+		    	if(academicUserYn == "Y") {
+		    		kyoboUrlDownload(urlTypeM);
+		    	} else {
+		    		kyoboUrlDownload(urlTypeW);
+		    	}    	
+		    } else {
+		    	urlDownload(urlTypeW);
+		    }
+	  }
+}
+
+function kyoboUrlDownload(urltype){
+    var isiPhone= /iPhone/.test(navigator.userAgent);
+    var isiPad= /iPad/.test(navigator.userAgent);
+    var isAndroid= /Android/.test(navigator.userAgent);
+    var form=document.f;
+    //form.action="/PopupLogin.do?loginFlag=1";
+    //form.action="/LoginRedirect.do";
+    form.loginFlag.value="1";
+    form.url_type.value=urltype;
+    
+    var pars=jQuery(form).serialize();
+
+    var cw=700;
+    var ch=700;
+	var sw=screen.availWidth;
+	var sh=screen.availHeight;
+	  
+	  //열 창의 포지션
+	var px=(sw-cw)/2;
+	var py=(sh-ch)/2;
+
+	var option = "scrollbars=no, toolbar=no, resizable=1, status=no, location=no, menu=no, Width="+cw+", Height="+ch+",left="+px+",top="+py;    
+   
+    if(isiPhone==true || isAndroid==true || isiPad==true){
+        var x=window.open("/search/download/KyoboUrlLoad.do?"+pars);
+        if(x==null)
+            document.location.href="/etc/MobileAppleInfo.html";
+    }else{
+    	var url = "/search/download/KyoboUrlLoad.do?"+pars;
+    	var f = window.open(url, "download", option);
+    }
+    
+}
+function publicMemberUrlDownload(urltype, viewcode, orgcode){
+    var isiPhone= /iPhone/.test(navigator.userAgent);
+    var isiPad= /iPad/.test(navigator.userAgent);
+    var isAndroid= /Android/.test(navigator.userAgent);
+    var form=document.f;
+    form.loginFlag.value="1";
+    form.url_type.value=urltype;
+    var pars=jQuery(form).serialize();
+	window.open("/PublicPopup.do" ,"_blank", "left=540,top=240,width=550,height=240,status=no,menubar=no,resizable=yes,scrollbars=no");
+}
+
+function memberUrlDownload(urltype, viewcode, orgcode){
+	 
+	
+    var isiPhone= /iPhone/.test(navigator.userAgent);
+    var isiPad= /iPad/.test(navigator.userAgent);
+    var isAndroid= /Android/.test(navigator.userAgent);
+    var form=document.f;
+    form.loginFlag.value="1";
+    form.url_type.value=urltype;
+    var pars=jQuery(form).serialize();
+    
+    	  if(isiPhone==true || isAndroid==true || isiPad==true){
+    	        var x=window.open("/search/download/UrlLoad.do?"+pars+"&viewcode="+viewcode+"&orgcode="+orgcode);
+    	        if(x==null)
+    	            document.location.href="/etc/MobileAppleInfo.html";
+    	    }else{
+    	        window.open("/search/download/UrlLoad.do?"+pars+"&viewcode="+viewcode+"&orgcode="+orgcode);
+    	    } 
+    	 
+}
+
+//DDOD다운로드
+function ddodDownloadSubmit(flag){  //DDOD원문보기 (kind=1:원문다운로드, kind=2:원문미리보기)
+    var isiPhone= /iPhone/.test(navigator.userAgent);
+    var isiPad= /iPad/.test(navigator.userAgent);
+    var isAndroid= /Android/.test(navigator.userAgent);
+    var targetName = 'download';
+    if(isiPhone==true || isAndroid==true || isiPad==true){
+        if(isAndroid){
+            var win = window.open('',targetName,"width=650,height=600,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,top=0,left=0");
+            var f=document.f;
+            f.action = "/search/download/ddodDownload.do?loginFlag=1";
+            f.DDODFlag.value=(flag=='undefined'?'':flag);
+            f.target=targetName;
+            f.submit();
+            win.focus();
+        }else{
+            var x=window.open('',targetName,"width=650,height=600,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,top=0,left=0");
+            var f=document.f;
+            f.action = "/search/download/ddodDownload.do?loginFlag=1";
+            f.DDODFlag.value=(flag=='undefined'?'':flag);
+            f.target=targetName;
+            f.submit();
+            win.focus();
+            if(x==null)
+                document.location.href="/etc/MobileAppleInfo.html";
+        }
+    }else{
+        var win = window.open('',targetName,"width=650,height=600,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,top=0,left=0");
+        var f=document.f;
+        f.action = "/search/download/ddodDownload.do?loginFlag=1";
+        f.DDODFlag.value=(flag=='undefined'?'':flag);
+        f.target=targetName;
+        f.submit();
+        win.focus();
+    }
+}
+function ServicePauseChk(svc_yn) { //서비스상태가 일지중지인지 여부 확인
+    if (svc_yn == "P") {
+        alert("해당 원문제공기관의 사정으로 서비스가 잠시 중단되었습니다.");
+        return false;
+    } else {
+        return true;
+    }
+ }
+
+// 사용자참여자료 등록
+function userRefCreatePop(action){
+    var f = document.userReference;
+    f.method="post";
+    f.target="userRefCreatePop";
+    f.action = action;
+    var pop = popupWindow(action, 'userRefCreatePop', '812', '768');
+    //pop.focus();
+    f.submit();
+}
+
+// 사용자참여자료 수정
+function userRefUpdatePop(user_ref_id){
+    if (confirm("이 자료를 수정 하시겠습니까?"))
+    {
+        var f = document.userReference;
+        f.method="post";
+        f.target="userRefUpdatePop";
+        f.user_ref_id.value=user_ref_id;
+        f.action = "/userref/UserRefUpdatePop.do?loginFlag=1";
+        var pop = popupWindow("/userref/UserRefUpdatePop.do", 'userRefUpdatePop', '812', '768');
+        //pop.focus();
+        f.submit();
+    }
+}
+
+//사용자 참여자료 삭제
+function deleteUserRef(user_ref_id)
+{
+    if (confirm("이 자료를 삭제 하시겠습니까?"))
+    {
+        var f = document.userReference;
+        f.user_ref_id.value=user_ref_id;
+        f.action="/userref/UserRefDelete.do";
+        f.submit();
+    }
+}
+
+// 사용자 참여자료 공개
+function openUserRef(user_ref_id)
+{
+    if (confirm("이 자료를 공개 하시겠습니까?"))
+    {
+        var f = document.userReference;
+        f.user_ref_id.value=user_ref_id;
+        f.action="/userref/UserRefOpen.do";
+        f.submit();
+    }
+}
+
+//사용자생성자료 보기
+function viewUccRefBook(user_ref_id)
+{
+    var f=document.userReference;
+    f.method="post";
+    f.target="uccRefBookViewPop";
+    f.user_ref_id.value=user_ref_id;
+    f.action="/userref/UccRefBookView.do";
+    var pop = popupWindow("/userref/UccRefBookView.do", 'uccRefBookViewPop', '690', '687');
+    //pop.focus();
+    f.submit();
+}
+
+// 상세페이지에서 내서재담기
+function putIntoMyCabinetPopForDetail(p_control_no) {
+        var f=document.userReference;
+        var pop = popupWindow('/mylibrary/PutIntoMyCabinetView.do?loginFlag=1&p_control_no='+p_control_no, 'putIntoMyCabinetPop', '840', '416');
+}
+//사용자참여자료 내서재 담기
+function putIntoMyCabinetPop(u) { //체크박스 확인 함수
+    var f=document.userReference;
+    var chk_len = f.elements.length;
+    var j = 0;
+
+    for ( var i = 0; i < chk_len; i++) {
+        var chk = f.elements[i];
+        if (chk.checked == true) {
+            j++;
+        }
+    }
+
+    if (j < 1) {
+        alert("먼저 사용자 참여자료를 선택하세요.");
+    } else {
+        //if (confirm("선택한 자료를 내서재에 담기 하시겠습니까?"))
+        //{
+            f.method="post";
+            f.target = "putIntoMyCabinetPop";
+            f.action = u;
+            var pop = popupWindow(u, 'putIntoMyCabinetPop', '620', '398');
+            //pop.focus();
+            f.submit();
+        //}
+    }
+}
+
+//동일 학술지 다른논문 보기
+function viewOtherContents(){
+    var li=jQuery('#sameJournalOtherContentsData > li');
+    if(li.length>0){
+        for(i=0;i<li.length;i++){
+            if(i > 3) {
+                if(li[i].style.display=='none'){
+                	li[i].style.display='block';
+                }else{
+                	li[i].style.display='none';
+                }
+            }
+        }
+        var btnObj=document.getElementById("BtnSameJournalOtherContents");
+        if(btnObj.className=="btn")
+            btnObj.className="btn open";
+        else
+            btnObj.className="btn";
+    }else{
+        alert('더이상 다른논문이 없습니다.');
+    }
+}
+//******************************************************************
+// 관련자료 목록을 Ajax를 사용하여 보여준다.
+//******************************************************************
+function getUserRefList(control_no, gubun){
+    var url="/userref/UserRefAjax.do";
+    var pars = "task=GetUserRefList&control_no="+control_no+"&gubun="+gubun;
+    jQuery.ajax({
+        type: "POST",
+        url: url,
+        data: pars,
+        success : function(html){
+                    jQuery("#userRef_div").empty();
+                    jQuery("#userRef_div").append(html);
+                },
+        error: function(result){
+                    alert("조회시 일시적인 문제가 발생하였습니다.\n다시 시도해 주세요.");
+                }
+    });
+}
+//*********************** 여기까지 ***********************************
+
+// 상호대차 팝업
+function OpenOrder(ctrl_no, type, v_ctrl_no){
+    var targetName = 'order';
+    if (!v_ctrl_no) v_ctrl_no = "";
+    //2013.8.12 청사 이전으로 신규 신청 제한
+    //alert("KERIS 전산센터 이전에 따라 8. 14(수) 18:00부터 8. 30(금) 09:00까지 신규 신청이 불가능합니다.\n8. 23(금) 18:00까지 진행 중인 트랜잭션을 종료 처리하여 주시기 바랍니다.\n서비스 이용에 불편을 드려 죄송합니다.");
+    //return;
+    var win = window.open('/order/OrderForm.do?requestType=requestPanel&loginFlag=1&ctrl_no='+ctrl_no+'&type='+type+'&v_ctrl_no='+v_ctrl_no+'&conType=real',targetName,"status=0,toolbar=0,Titlebar=0,scrollbars=1,resizable=1,width=838px,height=550px");
+    win.focus();
+}
+
+// NII 팝업
+function OpenOrderNII(utno){
+
+    //2013.8.12 청사 이전으로 신규 신청 제한
+    //alert("KERIS 전산센터 이전에 따라 8. 14(수) 18:00부터 8. 30(금) 09:00까지 신규 신청이 불가능합니다.\n\n서비스 이용에 불편을 드려 죄송합니다.");
+    //return;
+    var targetName = 'orderNII';
+
+    var win = popupWindow('/order/OrderForm.do?loginFlag=1&utno='+utno,
+            targetName,
+            "820", "550");
+    win.focus();
+}
+
+//컬렉션 이동
+function goDetailCate(col){
+    var frm = document.TopSearch;
+    frm.colName.value=col;
+    frm.action="/search/Search.do";
+    frm.submit();
+}
+
+//저자의 다른논문 더보기
+function subjectOthersContentsMore(){
+    var subjectOthersContents=jQuery('#subjectOthersContents > ul');
+    if( subjectOthersContents.length<=3 ){
+        alert('더이상 다른 논문이 없습니다.');
+    }else{
+        if(subjectOthersContents.length>3){
+            for(var i=0;i<subjectOthersContents.length;i++){
+                if(i > 2)
+                    if(subjectOthersContents[i].style.display=='none'){
+                        subjectOthersContents[i].style.display='block';
+                    }else{
+                        subjectOthersContents[i].style.display='none';
+                    }
+            }
+        }
+    }
+}
+
+//목차 더보기
+function openToc(){
+    var liArr=jQuery('#cont > li');
+    if(liArr.length <= 4){
+        alert('더이상 목차가 없습니다.');
+    }else{
+        var btnObj=document.getElementById("btntoc");
+        if(btnObj.className=="btn") {
+            btnObj.className="btn open";
+            if(liArr.length >4 ){
+                for(var i=0;i<liArr.length;i++){
+                    liArr[i].style.display='block';
+                }
+            }
+        } else {
+            btnObj.className="btn";
+            if(liArr.length >4 ){
+                for(var i=0;i<liArr.length;i++){
+                    if(i>4)
+                        liArr[i].style.display='none';
+                }
+            }
+        }
+    }
+}
+
+//초록 더보기
+//function openAbs(no){
+//    var liArr=jQuery('#abs'+no+' > li');
+//    for(var i=0;i<liArr.length;i++){
+//        if(liArr[i].style.display=='none'){
+//            liArr[i].style.display='block';
+//        }else{
+//            liArr[i].style.display='none';
+//        }
+//    }
+//    var btnObj=document.getElementById("btnabs"+no);
+//    if(btnObj.className=="btn")
+//        btnObj.className="btn open";
+//    else
+//        btnObj.className="btn";
+//}
+
+function addCart(p_control_no)
+{
+    var f = document.f;
+    f.action="/bill/BillingCheck.do?p_control_no="+p_control_no;
+    f.submit();
+}
+
+var libListToggle=function(){
+    var libList=jQuery('#libList > li');
+    if(libList.length <= 6){
+        alert('더이상 소장기관 리스트가 없습니다.');
+    }else{
+        if(libList.length > 6 ){
+            for(var i=0;i<libList.length;i++){
+                if( i > 5 )
+                    if(libList[i].style.display=='none'){
+                        libList[i].style.display='block';
+                    }else{
+                        if(jQuery(libList[i]).attr("class")!='view')
+                            libList[i].style.display='none';
+                    }
+            }
+        }
+        if(document.getElementById("libBtnImg").getAttribute("src")=="/search/images/more_btn.jpg") {
+            document.getElementById("libBtnImg").setAttribute("src","/search/images/btn_close.gif");
+            document.getElementById("libBtnImg").setAttribute("alt","닫기");
+        } else {
+            document.getElementById("libBtnImg").setAttribute("src","/search/images/more_btn.jpg");
+            document.getElementById("libBtnImg").setAttribute("alt","more");
+        }
+    }
+}
+
+var SearchResult = {
+        fncMyQuery : function() {
+            with (document.myquery) {
+                var pop=popupWindow("","keywordSave","635","570");
+                target="keywordSave";
+                action="/search/MyQueryCreateView.do";
+                submit();
+            }
+        },
+        fncMyRss : function() {
+            SearchResult.fncHideRssReader();
+            with (document.myquery) {
+                var pop=popupWindow("","keywordSave","635","570");
+                target="keywordSave";
+                action="/search/MyRssCreateView.do";
+                submit();
+            }
+        },
+        fncShowRssReader : function() {
+            jQuery('#rssLayer').show();
+        },
+        fncHideRssReader : function () {
+            jQuery('#rssLayer').hide();
+        }
+    }
+
+var WclipboardData=function(detailURL){
+    try{
+        clickInsert('HOME>검색>상세>고유URL복사', detailURL, detailURL.substring(27,28), detailURL.substring(28,detailURL.length));
+    }catch(ex){}
+    if(jQuery.browser.msie){
+        window.clipboardData.setData('Text',detailURL);
+        alert('주소가 복사되었습니다.\n문서나 주소창에서 Ctrl + V 를 눌러보세요');
+    }else{
+        var temp = prompt('이 페이지의 주소입니다. Ctrl + C 를 눌러 클립보드로 복사하세요', detailURL);
+    }
+}
+
+function directLink(lib_code,kind_cd,type_cd,control_no){
+    jQuery.ajax(
+            { url : "/search/DirectLinkCheckAjax.do",
+              type  : "post",
+              data : {
+                lib_code : lib_code,
+                kind_cd : kind_cd,
+                type_cd : type_cd,
+                control_no : control_no
+              },
+              dataType : "text",
+              success : function(result){
+                            if(jQuery.trim(result)=='Y')
+                                window.open("/search/DirectLink.do?lib_code="+lib_code+"&kind_cd="+kind_cd+"&type_cd="+type_cd+"&control_no="+control_no+"","_link","");
+                            else{
+                                setTimeout("alert('해당 기관의 상세서지가 존재하지 않습니다.')","1000");
+                                //alert('해당 기관의 상세서지가 존재하지 않습니다.');
+                            }
+                        },
+                error: function(content,result){
+                    alert("조회시 일시적인 문제가 발생하였습니다.\n다시 시도해 주세요.");
+                    }
+            }
+        );
+}
+
+function korEBookLink(eBookUrl,control_no,lib_code){
+    var targetName = 'ebooklink';
+    var win = window.open('',targetName);
+    var f=document.ebookLink;
+    f.action = "/search/KorEBookLink.do";
+    f.eBookUrl.value = eBookUrl;
+    f.control_no.value = control_no;
+    f.lib_code.value = lib_code;
+    f.target=targetName;
+    f.submit();
+    win.focus();
+    //window.open("/search/KorEBookLink.do?eBookUrl="+eBookUrl+"&control_no="+control_no+"&lib_code="+lib_code,"_ebooklink","");
+    //popupWindow("/search/KorEBookLink.do?eBookUrl="+eBookUrl+"&control_no="+control_no+"&lib_code="+lib_code,"_ebooklink","800","600");
+}
+
+function openLibInfo(lib_code){
+    //620*750
+    popupWindow("/search/LibraryInfo.do?lib_code="+lib_code,"_libinfo","780","600");
+}
+
+function overFulltextDownload(url, dbname){
+    var isiPhone= /iPhone/.test(navigator.userAgent);
+    var isiPad= /iPad/.test(navigator.userAgent);
+    var isAndroid= /Android/.test(navigator.userAgent);
+    var form=document.f;
+    form.loginFlag.value="1";
+    var pars=jQuery(form).serialize();
+    if(isiPhone==true || isAndroid==true || isiPad==true){
+        if(isAndroid){
+            window.open(url+pars,dbname,"status=0,toolbar=0,Titlebar=0,width=950,height=720,resizable=1");
+        }else{
+            var x=window.open(url+pars,dbname,"status=0,toolbar=0,Titlebar=0,width=950,height=720,resizable=1");
+            if(x==null)
+                document.location.href="/etc/MobileAppleInfo.html";
+        }
+    }else{
+        window.open(url+pars,dbname,"status=0,toolbar=0,Titlebar=0,width=950,height=720,resizable=1");
+    }
+}
+
+// 기관내 무료 원문 보기
+function memberFulltextDownlod(viewcode, orgcode, p_mat_type)
+{
+    var isiPhone= /iPhone/.test(navigator.userAgent);
+    var isiPad= /iPad/.test(navigator.userAgent);
+    var isAndroid= /Android/.test(navigator.userAgent);
+    if(isiPhone==true || isAndroid==true || isiPad==true){
+        if(isAndroid){
+            window.open("/search/download/FullTextDownload.do?viewcode="+viewcode+"&orgcode="+orgcode+"&p_mat_type="+p_mat_type+"&loginFlag=1","FulltextDownload","status=0,toolbar=0,Titlebar=0,width=840,height=680,resizable=1");
+        }else{
+            var x=window.open("/search/download/FullTextDownload.do?viewcode="+viewcode+"&orgcode="+orgcode+"&p_mat_type="+p_mat_type+"&loginFlag=1","FulltextDownload","status=0,toolbar=0,Titlebar=0,width=840,height=680,resizable=1");
+            if(x==null)
+                document.location.href="/etc/MobileAppleInfo.html";
+        }
+    }else{
+        window.open("/search/download/FullTextDownload.do?viewcode="+viewcode+"&orgcode="+orgcode+"&p_mat_type="+p_mat_type+"&loginFlag=1","","status=0,toolbar=0,Titlebar=0,width=840,height=680,resizable=1"); // FulltextDownload  팝업Name 해제(복수의 원문보기 적용. 2013.09.06)
+    }
+}
+
+//내서재 담기
+var putIntoMyCabinetPopForSeriesDetail=function(){
+    var f=document.createElement("form");
+    
+    if(countCheck(document.getElementsByName("control_no"))<1)
+    {
+        alert('논문을 선택해 주세요');
+        return false;
+    }
+    try{
+        var controlList=document.getElementsByName("control_no");
+        for(var i=0;i<controlList.length;i++){
+            if(controlList[i].checked==true){
+            var value=controlList[i].value;
+            var type="";
+            if(document.volumeForm.inside_outside.value=='1')
+                type=document.volumeForm.a_mat_type.value;
+            else if(document.volumeForm.inside_outside.value=='0')
+                type=document.volumeForm.o_mat_type.value;
+            makeFormDataList(f,"p_control_no", $("input[name=p_control_no]").val());
+          }
+        }
+        
+        makeFormDataList(f,"loginFlag",1);
+        
+        document.body.appendChild(f);
+        popupWindow("","putIntoMyCabinetPop",620, 398);
+
+        f.action="/mylibrary/PutIntoMyCabinetView.do";
+        f.target="putIntoMyCabinetPop";
+        f.method="post";
+        f.submit();
+
+        document.body.removeChild(f);
+    }catch(ex){
+        alert(ex.message);
+        document.body.removeChild(f);
+    }
+};
+
+function openCloseHideValue(pid, pval) {
+    try{
+        document.getElementById(pid).style.display = pval;
+        document.getElementById("layerGeneralPeriod").style.top=document.getElementById("btnGeneralPeriod").offsetTop + 21 + "px";
+        document.getElementById("layerGeneralPeriod").style.left=document.getElementById("btnGeneralPeriod").offsetLeft + "px";
+        document.getElementById("layerEtcTitle").style.top=document.getElementById("btnEtcTitle").offsetTop + 21 + "px";
+        document.getElementById("layerEtcTitle").style.left=document.getElementById("btnEtcTitle").offsetLeft + "px";
+    }catch(ex){
+    }
+}
+
+//대출정보 API
+function clickLoanAPI(lib_code, type_cd, control_no, lib_name){
+	//$("#img_"+lib_code).attr('src', '/search/images/icoLoan_ani2.gif');
+	var parentNode = document.getElementById("li_"+lib_code);
+	if(parentNode != null){
+		var aNode = document.getElementById("a_"+lib_code);
+		var img =  document.createElement("img");
+		img.src = "/search/images/loan.gif";
+		img.setAttribute("id","img_"+lib_code);
+		
+		var font = document.createElement("font");
+		font.setAttribute('style', 'margin: 0px 1px;');
+        
+		/*var a = document.createElement("a");
+		a.setAttribute("href","#redirect");
+		a.appendChild(img);*/
+		if(aNode != null){
+			parentNode.replaceChild(img, aNode);
+		} else {
+			parentNode.appendChild(img);
+		}
+	}
+	//document.getElementById('aOpenBtn').src="/search/images/icoLoan_ani2.gif";
+    try{
+        jQuery.ajax(
+            {
+                url : "/search/detail/ClickLoanAPI.do",
+                type  : "post",
+                data : {
+                	lib_code : lib_code,
+                	type_cd : type_cd,
+                    control_no : control_no,
+                    lib_name : lib_name
+                },
+                dataType : "xml",
+                success : function(result){
+                	
+                	var loans = result.getElementsByTagName("string-array");
+                	if(loans.length>0){
+                		for(var i=0;i<loans.length;i++){
+                			var loanStatus = getXmlValue(loans[i].getElementsByTagName("string")[0]);
+                			var loanMgt = getXmlValue(loans[i].getElementsByTagName("string")[1]);
+                			var imgNode = document.getElementById("img_"+lib_code);
+                			if(loanStatus == "1"){
+                				if(parentNode != null){
+	                				var text = document.createTextNode("대출가능권수" + loanMgt+"권");
+                					font.appendChild(text);
+	                				if(imgNode != null){
+                						parentNode.replaceChild(font, imgNode);
+                					} else {
+                						parentNode.appendChild(font);
+                					}
+                				}
+                			} else if(loanStatus == "2"){
+                				if(parentNode != null){
+                    				if(imgNode != null){
+                						parentNode.replaceChild(aNode, imgNode);
+                					} else {
+                						parentNode.appendChild(aNode);
+                					}
+                    			}
+                				alert(loanMgt);
+                			} else {
+                				if(parentNode != null){
+	            					if(imgNode != null){
+	            						var img =  document.createElement("img");
+	            						img.src = "/search/images/ln01_err.png";
+	            						parentNode.replaceChild(img, imgNode);
+	            						/*parentNode.removeChild(imgNode);*/
+	            						/*var img = document.createElement("img");
+	            						img.src = "/search/images/ln01_off.png";
+	            						var a = document.createElement("a");
+	            						a.setAttribute("href","#redirect");
+	            						a.setAttribute("onclick","window.open(http://unicat.riss.kr/service_loan_api_info.jsp);return false");
+	            						a.appendChild(img);
+	            						parentNode.replaceChild(a, imgNode);*/
+	            					}
+                				}
+                				alert(loanMgt);
+                			}
+                		}
+                	}
+                },
+                error: function(result){alert('일시적인 오류가 발생하였습니다. \n 잠시후 다시 이용해 주세요.');}
+            }
+        );
+    }catch(ex){
+    }
+}
+
+var timerIntervalId;
+var time = 3;
+function nlkLayerPopupClose(){
+	clearInterval(timerIntervalId);
+	time = 3;
+	jQuery("#linInfoBox").hide();
+	jQuery("#grayOpacityBg").hide();
+}
+
+function nlkLayerPopupOpen(){
+	time = 3;
+	jQuery("#linInfoBox").show();
+	jQuery("#grayOpacityBg").show();
+	jQuery("#nlkLayerMsg").text("3초 뒤에 국립중앙도서관으로 이동합니다.");	
+	timerIntervalId = setInterval(function(){nlkLayerMsg()}, 1000);
+}
+
+function nlkLayerMsg(){
+	time--;
+	jQuery("#nlkLayerMsg").text(time+"초 뒤에 국립중앙도서관으로 이동합니다.");
+	if (time < 1) { //3초가 지나면 국중으로 이동.
+		clearInterval(timerIntervalId);
+		nationalLibraryCopyPopup();
+		time = 3;
+	}
+}
+
+function nationalLibraryCopyPopup(){
+	try {
+		clearInterval(timerIntervalId);
+	}catch(e){}	
+	jQuery("#linInfoBox").hide();
+	jQuery("#grayOpacityBg").hide();	
+	var localBibno = jQuery("#nationalLibraryLocalBibno").val();
+    popupWindow("http://www.nl.go.kr/app/nl/search/common/makeDetailUrl.jsp?control_no="+localBibno,"_nationalLibraryCopyPopup","1200","900");
+}
+
+function fn_show(gubun) {
+
+    if(gubun == "A") {
+	 
+        if($('#kciDetail').hasClass('KCIOpen')) {
+        	
+        	if($('#kciInfo').hasClass('KCIClosed')) {
+        		$('#kciInfo').addClass("KCIOpen");
+        		$('#kciInfo').removeClass("KCIClosed");
+        		$('#commonLayerN').empty();
+        	}
+        	
+        	$('#kciDetail').addClass("KCIClosed");
+        	$('#kciDetail').removeClass("KCIOpen");
+        	
+            var strHtml = document.getElementById("kciSDetail").innerHTML;
+        	$('#commonLayerN').append(strHtml);
+        	
+        } else if($('#kciDetail').hasClass('KCIClosed')) {
+        	$('#kciDetail').addClass("KCIOpen");
+        	$('#kciDetail').removeClass("KCIClosed");
+        	$('#commonLayerN').empty();
+        }
+	    
+     } else if(gubun == "B") {
+    	 
+        if($('#kciInfo').hasClass('KCIOpen')) {
+        	
+        	if($('#kciDetail').hasClass('KCIClosed')) {
+        		$('#kciDetail').addClass("KCIOpen");
+        		$('#kciDetail').removeClass("KCIClosed");
+        		$('#commonLayerN').empty();
+        	}
+        	
+        	
+        	$('#kciInfo').addClass("KCIClosed");
+        	$('#kciInfo').removeClass("KCIOpen");
+        	
+            var strHtml = document.getElementById("kciSInfo").innerHTML;
+        	$('#commonLayerN').append(strHtml);
+        	
+        } else if($('#kciInfo').hasClass('KCIClosed')) {
+        	$('#kciInfo').addClass("KCIOpen");
+        	$('#kciInfo').removeClass("KCIClosed");
+        	$('#commonLayerN').empty();
+        	
+        };
+		 
+	 }
+
+}
+
+
+
+function getSamReference(goRef, goRefList){
+	var controlNo = $("#controlNo").val();
+	var docType = $("#docType").val();
+	
+	$("#refBtn").hide();
+	
+	$.ajax({                      
+        type:"POST",
+        url:goRef,
+        data:{docType:docType, controlNo:controlNo},
+        dataType:'json',        
+        success:function(data){
+        	if(data.samFlag){
+        		$("#refBtn").show();
+        	} else {
+        		$("#f_refList").hide();
+        	}
+        }, error: function(request,status,error){
+        	$("#f_refList").hide();
+        }
+  }); 
+	
+  $("#refBtn").show();
+  getKciReferenceList(goRefList);
+  
+}
+
+function getKciReferenceList(goRefList){
+	var controlNo = $("#controlNo").val();
+	var docType = $("#docType").val();
+	$.ajax({                      
+        type:"POST",
+        url:goRefList,
+        data:{docType:docType, controlNo:controlNo},
+        dataType:'json',        
+        success:function(data){
+        	var html = "";
+        	
+        	if(data.refList.length>0){
+        		var num ;
+        		if(data.refList.length>20){
+        			num = 20;
+        		} else {
+        			num = data.refList.length;
+        		}
+                for(var i=0; i<num; i++){
+                	var linkUrl = data.refList[i].linkUrl;
+                	if(linkUrl == null || linkUrl == "undefined" || linkUrl == "") {
+                		html+="<li>"+data.refList[i].refInfo+"</li>";
+                	} else {
+                		html+="<li><a href="+linkUrl+" title='학위논문 상세페이지 이동'>" + data.refList[i].refInfo + "</a></li>";
+                	}
+                }
+				if(data.refList.length>num){					
+					$("#f_moreVal").val(num);
+					$("#f_moreRef").show();				        		
+        		} else {        			
+        			$("#f_moreRef").hide();
+        		}      		
+        		$("#f_refList ul").html(html);
+        		$("#f_refList").show();        		
+        	} else {
+        		$("#f_refList").hide(); 
+        	}
+        	
+        	$("#f_moreRef").click(function(){
+        		var num = parseInt($("#f_moreVal").val());
+        		var html="";        		
+        		if(data.refList.length>(num+20)){        			
+        			num = num+20;
+        		} else {        			
+        			num = data.refList.length;
+        		}
+                for(var i=0; i<num; i++){
+                	var linkUrl = data.refList[i].linkUrl;
+                	if(linkUrl == null || linkUrl == "undefined" || linkUrl == "") {
+                		html+="<li>"+data.refList[i].refInfo+"</li>";
+                	} else {
+                		html+="<li><a href="+linkUrl+" title='학위논문 상세페이지 이동'>" + data.refList[i].refInfo + "</a></li>";
+                	}
+                }
+        		if(data.refList.length>num){
+        			$("#f_moreVal").val(num);
+        			$("#f_moreRef").show(); 				        		
+        		} else {
+        			$("#f_moreRef").hide();         			
+        		}
+        		$("#f_refList ul").html(html);
+        	});     	        
+    		
+        	$("#refBtn").prop('href', data.url);
+        	
+        	//연구자관계분석 보이기 여부
+        	if(data.samCrtList != null ){
+        		$("#f_crtBtn").prop('href', data.samCrtList);
+        		$("#f_crtBtn").show();
+        	} else {
+        		$("#f_crtBtn").hide();
+        	}
+        }, error: function(request,status,error){
+        	$("#f_refList").hide();
+        }
+  });
+}
+
+
+
+function f_openLecture(kemId, prm){
+    var lectureId = prm;
+    var url = 'http://www.kocw.net/home/ssov.do?kemId='+kemId+'&lid=' + lectureId;
+    var name = "lecturePop";
+    window.open(url,name);
+}
+
+function f_openCourse(kemId){
+	var url = 'http://www.kocw.net/home/ssov.do?kemId='+kemId;
+	var name = "lecturePop";
+	window.open(url,name);
+}
+
+function translaterLangSrcSet(id, src_lang) {
+	src_lang = $("#form_absContent" + id + "_srcLang").val(src_lang);
+}
+function translaterLangTargetSet(id, target_lang) {
+	src_lang = $("#form_absContent" + id + "_targetLang").val(target_lang);
+}
+
+//2019.09.23 - 초록 번역 기능 추가
+function translater(id) {
+	var src_lang = $("#form_absContent" + id + "_srcLang").val();
+	var target_lang =  $("#form_absContent" + id + "_targetLang").val();
+	var query = $("#abs" + id).text();
+	$("#transedContent"+id).html(''); 
+	//ajax 시작
+	$.ajax({
+		url : "https://dapi.kakao.com/v2/translation/translate",
+	 	headers : {
+	 		"Authorization":"KakaoAK 7fb731ee648abad4614c09ca661d362f",
+	 		"X-Requested-With": "XMLHttpRequest"
+	 	},
+		method: "POST",
+		dataType: "json",
+		data : {"src_lang":src_lang, "target_lang":target_lang, "query":query.substr(0, 5000)},
+		beforeSend: function () { 
+			startProgress($("#transedContent"+id));
+		},
+		success : function(data){
+			endProgress(); 
+			if (data.translated_text.length > 0) {
+				var transArray = data.translated_text[0];
+				var transData = "";
+				for(i=0;i<transArray.length;i++) {
+					transData = transData + transArray[i]+"<br/>";  
+				}
+				$("#transedContent"+id).html(transData);
+				$("#transedDeclaration"+id).css("display","block");
+			}
+		},
+		error:function(request,status,error){   
+			endProgress();
+			alert("번역할 언어를 정확하게 선택하지 않았거나, 현재 접속한 PC에서는 상용 메신저(카카오톡 등)의 사용이 제한될 수 있습니다.\n사용이 제한된 경우, 모바일 RISS로 접속하여 이용 부탁드립니다.");
+			$("#transedDeclaration"+id).css("display","block");
+		}
+	});
+	
+	
+}
+
+
+function fnInterrestConfirm(obj, s_title, control_no) {
+	var src1 = '/search/images/heartOn.png';
+	var src2 = '/search/images/heartOff.png';
+	if (!$('.like a').parent().hasClass('on')) {
+		var s_control_nos = [];
+		s_control_nos.push(control_no+ "^" + s_title);
+		try{
+			jQuery.ajax({
+				url : "/mylibrary/insertMyinterestSAbbr.do",
+				type  : "post",
+				data : {
+					"s_control_nos" : s_control_nos.join('|'),
+					"delete_yn" : "N"
+				},
+				dataType : "text",
+				success : function(result){
+					if (trim(result) == 'Y') {
+						$('.like a').parent().addClass('on');
+						$('.like a').children('img').attr('src',src1);
+						if (confirm("관심학술지로 등록되었습니다.\n내서재 > 내 관심논문 메뉴에서 확인 가능 합니다.\n관심 학술지 목록을 바로 보시겠습니까?")) {
+							document.location = "/mylibrary/MyInterestList.do";
+						}
+					} else if (trim(result) == 'N') {
+						alert("관심 학술지는 최대 5개까지 등록 가능합니다.");
+					}
+				},
+				error: function(content,result){
+				}
+			});
+		}catch(ex){
+		}
+	} else {
+		try{
+			jQuery.ajax({
+				url : "/mylibrary/deleteSAbbr.do",
+				type  : "post",
+				data : {
+					"s_control_no" : control_no
+				},
+				dataType : "text",
+				success : function(result){
+					$('.like a').parent().removeClass('on');
+					$('.like a').children('img').attr('src',src2);
+					alert("관심 학술지가 삭제 되었습니다.");
+				},
+				error: function(content,result){
+				}
+			});
+		}catch(ex){
+		}
+	}
+	
+}
+
+function fnInterrestAlert() {
+	alert("죄송합니다! 직접접속 이용자는 내정보를 수정하실 수 없습니다.\n\n로그아웃 하신 후에 개인 아이디로 로그인하신 후에 사용하세요.");
+}
+function fnInterrestSerisAlert() {
+	alert("죄송합니다! 직접접속 또는 소셜 이용자는 관심학술지 등록을 할 수 없습니다.\n\n로그아웃 하신 후에 개인 아이디로 로그인하신 후에 사용하세요.");
+}
+
+function LoginSubmit(){   
+	popupWindow("/PopupLogin.do?loginFlag=1", "_new",800, 800);
+//	if(popup_flag){
+//	}else{
+//		document.f.action="/LoginRedirect.do";
+//		document.f.submit();
+//	}
+}
+
+function kakaoDeclaration(matType,controlNo,count){  
+    if(confirm('다국어번역오류접수문의는 카카오 고객센터 페이지로 이동합니다 \n카카오 고객센터 페이지로 이동하시겠습니까?')){
+    	 window.open('http://cs.kakao.com/requests?locale=ko&service=116','_blank'); 
+    	 clickInsert('HOME>검색>상세>번역오류', 'http://www.riss.kr/search/detail/DetailView.do', matType, controlNo,count);
+    } 
+}
+

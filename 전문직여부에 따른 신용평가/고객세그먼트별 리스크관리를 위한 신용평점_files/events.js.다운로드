@@ -1,0 +1,63 @@
+function node_onMouseOver(d) {	
+	var t;
+	if (typeof d.imports == "undefined") {
+		t = d.exports + "건";
+	} else {
+		t = d.imports + "건";
+	}
+	toolTip.transition().duration(200).style("opacity", ".9");
+	header.text(d.fullLabel);		//header.text(d.label);		
+	header2.text(t);
+	toolTip.style("left", (d3.event.pageX + 15) + "px").style("top",(d3.event.pageY - 75) + "px");
+}
+
+function node_onMouseOut(d) {
+	toolTip.transition() // declare the transition properties to fade-out the
+							// div
+	.duration(500) // it shall take 500ms
+	.style("opacity", "0"); // and go all the way to an opacity of nil
+}
+/** Returns an event handler for fading a given chord group. */
+function fade(opacity) {
+	return;
+	return function(g, i) {
+		svg.selectAll("path.chord").filter(function(d) {
+			// return true;
+			return d.source.index != i && d.target.index != i;}).transition().style("opacity", opacity);
+	};
+}
+
+//그래프 클릭시
+function node_onMouseClick(d) {	
+	//재검색
+//	$("#creatorNo").val(d.creatorNo);
+//	form = document.creatorFrm;
+//	form.action = "/findDetailCreator.do";
+//	form.submit();
+//	alert("d.creatorNo  : " + d.creatorNo);
+	//재 검색시 초기화
+	i_indexByName = [];
+	e_indexByName = [];
+	var baseCreatorNo = $("#creatorNo").val();
+	/*
+	$.ajax({
+        type: "POST",
+        url: "/findTgtCreatorAt.do",
+        dataType: 'json',
+        data: {creatorNo:d.creatorNo},
+        success: function(msg) {
+        	if(d.creatorNo != baseCreatorNo) {
+	            if(msg.result == "Y") {
+	            	document.getElementById("depth2").innerHTML = " <img src='images/etc/maparw.png' alt='화살표'/> <a href='/findDetailCreator.do?creatorNo=" + d.creatorNo + "&creatorNm=" + d.label + "' >"+d.label+"<img src='images/etc/researchmap.png' alt='검색'/></a>";
+	            } else {
+	            	document.getElementById("depth2").innerHTML = " <img src='images/etc/maparw.png' alt='화살표'/> " + d.label;        	
+	            }
+        	} else {
+        		document.getElementById("depth2").innerHTML = "";
+        	}
+        },
+        error: function() {alert('error!!');}
+    });*/
+	
+	fetchData("/detail/creatorRelationAnalysis.do", d.creatorNo);
+}

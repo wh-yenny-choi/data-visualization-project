@@ -1,0 +1,171 @@
+function update() {
+	buildChords();
+	eText = eGroup.selectAll("g.group").data(e_labels, function(d) {
+		return d.creatorNo;
+	});
+	iText = iGroup.selectAll("g.group").data(i_labels, function(d) {		
+		return d.creatorNo;
+	});
+	eChords = eGroup.selectAll("g.chord").data(e_chords, function(d) {		
+		return d.creatorNo;
+	});
+	iChords = iGroup.selectAll("g.chord").data(i_chords, function(d) {		
+		return d.creatorNo;
+	});
+	var td = instanceName;//검색어 instanceName
+	var fs=14;
+	delay = 1200;
+	d3.select(document.getElementById("secondLabelId")).text(usaLab);//유사연구 텍스트 usaLab 
+	d3.select(document.getElementById("thirdLabelId")).text(comLab);//공동연구 텍스트 comLab 
+	dGroup.transition().select("text").delay(delay).text(td)//검색어 td 
+	.attr("transform", "translate(" + (outerRadius - (chkStrLength(td) * fs/2)/2-2) + "," + (outerRadius + 42) +")")	
+	.style("font-size", fs + "px");
+	eText.enter().append("g").attr("class", "group").append("text").attr(
+			"class", "export").attr("dy", ".35em").attr("text-anchor",
+			function(d) {
+				return d.angle < Math.PI ? "end" : null;
+			}).attr(
+			"transform",
+			function(d) {
+				return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
+						+ "translate(" + (innerRadius + 6) + ")"
+						+ (d.angle < Math.PI ? "rotate(180)" : "");
+			}).text(function(d) {
+		return (d.index + 1) + ". " + d.label;//유사연구 리스트 라벨
+	}).on("mouseover", function(d) {
+		node_onMouseOver(d);
+	}).on("mouseout", function(d) {
+		node_onMouseOut(d);
+	}).on("click",function(d) {
+		node_onMouseClick(d);
+	});
+	eText.transition().duration(delay - 10).select("text").attr("dy", ".35em")
+			.attr("text-anchor", function(d) {
+				return d.angle < Math.PI ? "end" : null;
+			}).attr(
+					"transform",
+					function(d) {
+						return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
+								+ "translate(" + (innerRadius + 6) + ")"
+								+ (d.angle < Math.PI ? "rotate(180)" : "");
+					}).text(function(d) {
+				return d.label + " ["+d.exports+"]";//유사연구 리스트 라벨
+			});
+	eText.exit().remove();
+	eChords.enter().append("g").attr("class", "chord").append("path").attr(
+			"class", "chord").style("stroke", function(d) {
+		return d3.rgb(getExportColor(d.source.index)).darker();
+	}).style("fill", function(d) {
+		return getExportColor(d.source.index);
+	}).style("fill-opacity", function(d, i) {
+		return .85 * (topCountryCount - d.index) / topCountryCount;
+	}).attr("d", d3.svg.arc_chord().radius(innerRadius)).style("opacity", 0)
+			.on("mouseover", function(d) {
+				node_onMouseOver(d);
+			}).on("mouseout", function(d) {
+				node_onMouseOut(d);
+			}).on("click",function(d) {
+				node_onMouseClick(d);
+			});
+	eChords.transition().select("path").duration(delay).attr("d",d3.svg.arc_chord().radius(innerRadius))
+	.style("stroke",function(d) {
+				return d3.rgb(getExportColor(d.source.index)).darker();
+			}).style("fill", function(d) {
+		return getExportColor(d.source.index);
+	}).style(
+			"stroke-opacity",
+			function(d, i) {
+				return Math.max(.85 * (topCountryCount - d.index)
+						/ topCountryCount, .2);
+			}).style("fill-opacity", function(d, i) {
+		return .85 * (topCountryCount - d.index) / topCountryCount;
+	}).style("opacity", 1);
+	eChords.exit().remove();
+	
+	iText.enter().append("g").attr("class", "group").append("text").attr(
+			"class", "import").attr("dy", ".35em").attr("text-anchor",
+			function(d) {
+				return d.angle > Math.PI ? "end" : null;
+			}).attr(
+			"transform",
+			function(d) {
+				return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
+						+ "translate(" + (innerRadius + 6) + ")"
+						+ (d.angle > Math.PI ? "rotate(360)" : "");
+			}).text(function(d) {
+		return(d.index + 1) + ". " + d.label;//공동연구 리스트 라벨
+	}).on("mouseover", function(d) {
+		node_onMouseOver(d);
+	}).on("mouseout", function(d) {
+		node_onMouseOut(d);
+	}).on("click",function(d) {
+		node_onMouseClick(d);
+	});
+	iText.transition().select("text").duration(delay - 10).attr("dy", ".35em")
+			.attr("text-anchor", function(d) {
+				return d.angle > Math.PI ? "inherit" : null;
+			}).attr(
+					"transform",
+					function(d) {
+						return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
+								+ "translate(" + (innerRadius + 6) + ")"
+								+ (d.angle > Math.PI ? "rotate(360)" : "");
+					}).text(function(d) {
+				return d.label + " ["+d.imports+"]";//공동연구 리스트 라벨
+			});
+	iText.exit().attr("class", "exit").transition().duration(delay)
+			.attr("y", 0).attr("fill-opacity", 1e-6).remove();
+	iChords.enter().append("g").attr("class", "chord").append("path").attr(
+			"class", "chord").style("stroke", function(d) {
+		return d3.rgb(getImportColor(d.source.index)).darker();
+	}).style("fill", function(d) {
+		return getImportColor(d.source.index);
+	}).style("fill-opacity", function(d, i) {
+		return .7 * (topCountryCount2 - d.index) / topCountryCount2;
+	}).attr("d", d3.svg.arc_chord().radius(innerRadius))
+			.on("mouseover",
+			function(d) {
+				node_onMouseOver(d);
+			}).on("mouseout", function(d) {
+		node_onMouseOut(d);
+	}).on("click",
+			function(d) {
+		node_onMouseClick(d);
+	});
+	iChords.transition().select("path").duration(delay - 10).attr("d",
+			d3.svg.arc_chord().radius(innerRadius)).style("stroke",
+			function(d) {
+				return d3.rgb(getImportColor(d.source.index)).darker();
+			}).style("fill", function(d) {
+		return getImportColor(d.source.index);
+	}).style(
+			"stroke-opacity",
+			function(d, i) {
+				return Math.max(.85 * (topCountryCount2 - d.index)
+						/ topCountryCount2, .2);
+			}).style("fill-opacity", function(d, i) {
+		return .7 * (topCountryCount2 - d.index) / topCountryCount2;
+	});
+	iChords.exit().remove();
+}
+function getExportColor(i) {
+	var country = e_nameByIndex[i];
+	if (e_colorByName[country] == undefined) {
+		e_colorByName[country] = e_fill(i);
+	}
+	return e_colorByName[country];
+}
+function getImportColor(i) {
+	var country = i_nameByIndex[i];
+	if (i_colorByName[country] == undefined) {
+		i_colorByName[country] = i_fill(i);
+	}
+	return i_colorByName[country];
+}
+
+function chkStrLength(str) {    
+	var str = str;
+    var han_count=0; 
+    han_count = (escape(str)+"%u").match(/%u/g).length-1; 
+    return (str.toUpperCase().length + han_count);
+}

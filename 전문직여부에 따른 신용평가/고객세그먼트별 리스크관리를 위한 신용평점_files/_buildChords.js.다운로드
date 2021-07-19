@@ -1,0 +1,217 @@
+function buildChords() {		
+	var import_matrix = [], export_matrix = [];
+	e_buf_indexByName = e_indexByName;
+	i_buf_indexByName = i_indexByName;
+	e_indexByName = [];
+	e_nameByIndex = [];
+	e_creatorNo = [];
+	i_indexByName = [];
+	i_nameByIndex = [];
+	i_creatorNo = [];
+	n = 0;
+	// Compute a unique index for each package name
+	totalExports = 0;	
+	
+	//유사연구
+	usa1.forEach(function(d) {
+		totalExports += Number(d.count);
+		var t = d.creatorNo;
+		d = d.name;
+		if (!(d in e_indexByName)) {
+			e_nameByIndex[n] = d;
+			e_creatorNo[n] = t;
+			e_indexByName[t] = n++;
+		}
+	});
+	
+	usa1.forEach(function(d) {
+		var source = e_indexByName[d.creatorNo], 
+		row = export_matrix[source];
+		if (!row) {
+			row = export_matrix[source] = [];
+			for ( var i = -1; ++i < n;)
+				row[i] = 0;
+		}
+		row[e_indexByName[d.creatorNo]] = Number(d.count);
+	});
+		
+	n = 0;
+	totalImports = 0;
+	
+	
+	//공동연구
+	com2.forEach(function(d) {
+		totalImports += Number(d.count);
+		var t = d.creatorNo;		
+		d = d.name;
+		if (!(d in i_indexByName)) {
+			i_nameByIndex[n] = d;
+			i_creatorNo[n] = t;
+			i_indexByName[t] = n++;
+		}
+	});
+	
+	com2.forEach(function(d) {		
+		var source = i_indexByName[d.creatorNo], 
+		row = import_matrix[source];			
+		if (!row) {
+			row = import_matrix[source] = [];
+			for ( var i = -1; ++i < n;)
+				row[i] = 0;
+		}
+		row[i_indexByName[d.creatorNo]] = Number(d.count);
+	});	
+	
+	//그래프 각도 범위
+	var exportRange= 160;//angleRange*(totalExports/(totalExports + totalImports));//유사연구
+	var importRange=160;//angleRange*(totalImports/(totalExports + totalImports));//공동연구
+	
+	export_chord.startAngle(-(exportRange/2)).endAngle((exportRange/2));
+	import_chord.startAngle(180-(importRange/2)).endAngle(180+(importRange/2));
+	import_chord.matrix(import_matrix);
+	export_chord.matrix(export_matrix);
+	
+		
+	//유사연구
+	var tempLabels = [];
+	var tempChords = [];
+	for ( var i = 0; i < e_labels.length; i++) {
+		e_labels[i].label = 'null';
+		e_chords[i].label = 'null';
+	}
+			
+	for ( var i = 0; i < export_chord.groups().length; i++) {		
+		var d = {};
+		var g = export_chord.groups()[i];
+		var c = export_chord.chords()[i];
+		d.index = i;
+		d.angle = (g.startAngle + g.endAngle) / 2;
+		d.name = e_nameByIndex[g.index];
+		d.creatorNo = e_creatorNo[g.index];
+		d.count = c.source.value;
+		var bIndex = e_buf_indexByName[d.creatorNo];
+				
+		//순서 2) e_buf_indexByName 에 데이터를 넣고 그릴때,,
+		if (typeof bIndex != 'undefined') { // Country already exists so
+											// re-purpose node.
+		   if(d.name.length>3){
+  	        	cutName = d.name.substring(0,3)+".."; 
+  	        } else {
+  	        	cutName = d.name;
+  	        }
+			e_labels[bIndex].angle = d.angle;
+			e_labels[bIndex].label = cutName;//그래프 라벨
+			e_labels[bIndex].index = i;
+			e_labels[bIndex].exports = Number(d.count);//그래프 건수
+			e_labels[bIndex].creatorNo = d.creatorNo;//저자 번호
+			e_labels[bIndex].fullLabel = d.name;
+			e_chords[bIndex].index = i;
+			e_chords[bIndex].label =  d.name;//그래프 라벨
+			e_chords[bIndex].source = c.source;
+			e_chords[bIndex].target = c.target;
+			e_chords[bIndex].exports = Number(d.count);//그래프 건수
+			e_chords[bIndex].creatorNo = d.creatorNo;//저자 번호
+			e_chords[bIndex].fullLabel = d.name;
+		} else { // Country doesnt currently exist so save for later		
+			tempLabels.push(d);
+			tempChords.push(c);
+		}
+	}
+	// Now use up unused indexes - 순서 1) 처음 chart 그릴때,,
+	for ( var i = 0; i < e_labels.length; i++) {
+		if (e_labels[i].label == "null") {
+				var o = tempLabels.pop();	
+				if(o.name.length>3){
+					cutOName = o.name.substring(0,3)+".."; 
+	  	        } else {
+	  	        	cutOName = o.name;
+	  	        }
+				//console.log(o);
+				e_labels[i].index = e_indexByName[o.name];
+				e_labels[i].label = cutOName;
+				e_labels[i].angle = o.angle;
+				e_labels[i].creatorNo = o.creatorNo;//저자 번호
+				e_labels[i].exports = Number(o.count);
+				e_labels[i].fullLabel = o.name;
+				var c = tempChords.pop();
+				e_chords[i].label = o.name;
+				e_chords[i].index = i;
+				e_chords[i].source = c.source;
+				e_chords[i].target = c.target;
+				e_chords[i].creatorNo = o.creatorNo;//저자 번호
+				e_chords[i].exports = Number(c.count);
+				e_chords[i].fullLabel = o.name;
+		}
+	}
+	
+	//공동연구
+	tempLabels = [];
+	tempChords = [];
+	for ( var i = 0; i < i_labels.length; i++) {
+		i_labels[i].label = 'null';
+		i_chords[i].label = 'null';
+	}
+	for ( var i = 0; i < import_chord.groups().length; i++) {
+		var d = {};
+		var g = import_chord.groups()[i];
+		var c = import_chord.chords()[i];
+		d.index = i;
+		d.angle = (g.startAngle + g.endAngle) / 2;
+		d.name = i_nameByIndex[g.index];
+		d.creatorNo = i_creatorNo[g.index];
+		d.count = c.source.value;
+		var bIndex = i_buf_indexByName[d.creatorNo];
+		
+		//순서 2) i_buf_indexByName 에 데이터를 넣고 그릴때,,
+		if (typeof bIndex != 'undefined') { // Country already exists so
+											// re-pupose node.
+		   if(d.name.length>3){
+  	        	cutName = d.name.substring(0,3)+".."; 
+  	        } else {
+  	        	cutName = d.name;
+  	        }
+			i_labels[bIndex].angle = d.angle;
+			i_labels[bIndex].label = cutName;//그래프 라벨 
+			i_labels[bIndex].imports = Number(d.count);//그래프 건수
+			i_labels[bIndex].creatorNo = d.creatorNo;//저자번호
+			i_labels[bIndex].index = i;
+			i_labels[bIndex].fullLabel = d.name;
+			i_chords[bIndex].index = i;
+			i_chords[bIndex].label = d.name;//그래프 라벨 
+			i_chords[bIndex].source = c.source;
+			i_chords[bIndex].target = c.target;
+			i_chords[bIndex].imports = Number(d.count);//그래프 건수
+			i_chords[bIndex].creatorNo = d.creatorNo;//저자번호
+			i_chords[bIndex].fullLabel = d.name;
+		} else { // Country doesnt currently exist so save for later
+			tempLabels.push(d);
+			tempChords.push(c);
+		}
+	}
+	
+	// Now use up unused indexes - 순서 1) 처음 chart 그릴때,,
+	for ( var i = 0; i < i_labels.length; i++) {
+		if (i_labels[i].label == "null") {
+			var o = tempLabels.pop();
+			if(o.name.length>3){
+  	        	cutOName = o.name.substring(0,3)+".."; 
+  	        } else {
+  	        	cutOName = o.name;
+  	        }
+			i_labels[i].index = i_indexByName[o.name];
+			i_labels[i].label = cutOName; 
+			i_labels[i].angle = o.angle;
+			i_labels[i].creatorNo = o.creatorNo;//저자번호
+			i_labels[i].imports = Number(o.count);
+			i_labels[i].fullLabel = o.name;
+			var c = tempChords.pop();
+			i_chords[i].label = o.name;
+			i_chords[i].index = i;
+			i_chords[i].source = c.source;
+			i_chords[i].target = c.target;
+			i_chords[i].creatorNo = o.creatorNo;//저자번호
+			i_chords[i].imports = Number(c.count);
+			i_chords[i].fullLabel = o.name;
+		}
+	}
+}

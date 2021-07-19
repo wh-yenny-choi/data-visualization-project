@@ -1,0 +1,375 @@
+function fetchData(url,creatorNo) {
+	var controlNo = $("#controlNo").val();
+	var docType = $("#docType").val();
+
+	var data;
+	if(creatorNo!=undefined){
+		data = {docType:docType, creator:creatorNo}
+	}else{
+//		data = {docType:docType, controlNo:'10882939'};//테스트
+		data = {docType:docType, controlNo:controlNo};//실제
+	}
+
+	i_labels = [];
+	i_chords = [];
+	i_creatorNo = [];
+	e_labels = [];
+	e_chords = [];
+	e_creatorNo = [];
+	  $.ajax({
+          type: "POST",
+          url: url,
+          data:data,
+			 //           data:{docType:docType, controlNo:controlNo},
+//          data: "controlNo="+controlNo + "&creatorNo=" + creatorNo,   
+          dataType: "json",
+          success: function(msg) {    
+       	  if(msg.instancename!=undefined){
+       		instanceName = msg.instancename;//검색어 (그래프 중앙 값)       		
+//    		if(msg.children[0] != null) {
+    			usa1 = msg.children[0].children.sort(customSort);	//유사연구 데이터 
+        		usaLab = msg.children[0].type;//유사연구 라벨 (그래프에서 유사연구 글자)
+        		topCountryCount = usa1.length;//유사연구 리스트의 총합
+//    		}
+    		
+//    		if(msg.children[1] != null) {
+    			com2 = msg.children[1].children.sort(customSort);	//공동연구 데이터
+    			comLab = msg.children[1].type;//공동연구 라벨 (그래프에서 공동연구 글자)
+    			topCountryCount2 = com2.length;//공동연구 리스트의 총합    		
+//    		}    		
+    		for ( var i = 0; i < topCountryCount; i++) {//유사연구 데이터 배열 초기화
+    			var l = {};
+    			l.index = i;
+    			l.label = "null";
+    			l.angle = 0;
+    			e_labels.push(l);
+    			var c = {};
+    			c.label = "null";
+    			c.source = {};
+    			c.target = {};
+    			e_chords.push(c);	
+    			var n = {};
+    			n.index = i;
+    			n.label = "null";
+    			n.angle = 0;
+    			e_creatorNo.push(n);    			
+    		}	
+    		for ( var i = 0; i < topCountryCount2; i++) {//공동연구 데이터 배열 초기화
+    			var l1 = {};
+    			l1.index = i;
+    			l1.label = "null";
+    			l1.angle = 0;
+    			i_labels.push(l1);
+    			var c1 = {};
+    			c1.label = "null";
+    			c1.source = {};
+    			c1.target = {};
+    			i_chords.push(c1);
+    			var n1 = {};
+    			n1.index = i;
+    			n1.label = "null";
+    			n1.angle = 0;
+    			i_creatorNo.push(n1);  
+    		}		
+    		run();    		
+    		refreshIntervalId = setInterval(run, delay);
+			
+
+			//공동 유사연구자 리스트
+			x = 5;
+			liCnt = 0;
+			y = 5;
+			liCnt2 = 0;
+			$("#coBt").html("<a href=\"javascript:moreCreator('C')\" class=\"more\">더보기</a>");
+			$("#simBt").html("<a href=\"javascript:moreCreator('S')\" class=\"more\">더보기</a>");
+
+			$("#coList > li").remove();
+			$("#simList > li").remove();
+			var coCnt = 1;
+			if(msg.co!=undefined){
+				$("#coCnt").text("공동연구자 ("+msg.co.length+")");
+				for(key in msg.co) {
+					if(coCnt>5){
+						$("#coList").append("<li style=\"display:none;\">"+msg.co[key].creatorNm+"<span class=\"cnt\">"+msg.co[key].cnt+"건</span></li>");
+					}else{
+						$("#coList").append("<li>"+msg.co[key].creatorNm+"<span class=\"cnt\">"+msg.co[key].cnt+"건</span></li>");
+					}
+					coCnt++;	
+				}
+			}else{
+				$("#coCnt").text("공동연구자 (0)");
+			}
+			var simCnt = 1;
+			if(msg.sim!=undefined){
+				$("#simCnt").html("유사연구자 ("+msg.sim.length+")"+" <span class=\"infoT\">활용도상위20명</span>");
+				for(key in msg.sim) {
+					if(simCnt>5){
+						$("#simList").append("<li style=\"display:none;\">"+msg.sim[key].creatorNm+"<span class=\"cnt\">"+msg.sim[key].cnt+"건</span></li>");
+					}else{
+						$("#simList").append("<li>"+msg.sim[key].creatorNm+"<span class=\"cnt\">"+msg.sim[key].cnt+"건</span></li>");
+					}
+					simCnt++;
+				}
+			}else{
+				$("#simCnt").html("유사연구자 (0)"+" <span class=\"infoT\">활용도상위20명</span>");
+			}
+
+
+            }else{
+				$(".tablist > .analysis3").hide();
+			}
+          },    //function result 를 의미함		  	
+		  beforeSend:function(){
+			$(".divGraph > .graphW").block({
+				message: "분석중입니다.. \n"+"경우에 따라 시간이 다소 소요될 수 있습니다.",	  	 	   
+	  	 	    overlayCSS: { opacity:0.5 ,cursor:'wait',textAlign:'center'},
+	  	 	    css:{color:'white',fontSize:'16px'}
+			});
+				
+		  }
+		  ,complete:function(){
+            $(".divGraph > .graphW").unblock();
+		  }
+		  ,
+          error: function(request, status, err) {
+            alert('code:' + request.status  + '\n' + 'error:' + err+ '\n' + 'message:' + request.responseText);
+          }
+      });	 	
+	}
+function customSort(a, b) {//배열 정렬 내림차순(건수)
+	  if(Number(a.count) == Number(b.count)){ return 0;} return  Number(a.count) > Number(b.count) ? -1 : 1;
+}
+var runi=0;   
+function run() {//그래프 실행              	
+    if(runi==2){      
+	    clearInterval(refreshIntervalId);		        
+        eChords.interrupt();
+        iChords.interrupt();
+        iText.interrupt();
+        eText.interrupt();
+        runi=0;
+        return;	
+    }else{                     	
+    	update();           
+    }
+    runi++;
+}
+
+var x;
+var liCnt;
+var y;
+var liCnt2;
+function moreCreator(creatorType){
+	var creatorUl = "";
+	if(creatorType=="C"){
+		creatorUl = "#coList";
+		liCnt = $(creatorUl).children().length;
+		x = (x+5 <= liCnt) ? x+5 : liCnt;
+		$(creatorUl+" li:lt("+ x +")").show();
+		var tarLiCnt = liCnt; 
+		if(x == tarLiCnt) {
+			$("#coBt").html("<a href=\"javascript:lessCreator('C')\" class=\"less\">닫기</a>");	     	  
+		}
+	}else if(creatorType=="S"){
+		creatorUl = "#simList";
+		liCnt2 = $(creatorUl).children().length;
+		y = (y+5 <= liCnt2) ? y+5 : liCnt2;
+		$(creatorUl+" li:lt("+ y +")").show();
+		var tarLiCnt = liCnt2; 
+		if(y == tarLiCnt) {
+			$("#simBt").html("<a href=\"javascript:lessCreator('S')\" class=\"less\">닫기</a>");	     	  
+		}
+	}
+}
+function lessCreator(creatorType){
+	var creatorUl = "";
+	if(creatorType=="C"){
+		creatorUl = "#coList";
+		$(creatorUl+" li").not(":lt(5)").hide();
+			if(liCnt > 5) {				
+				x= 5;
+			}
+		$("#coBt").html("<a href=\"javascript:moreCreator('C')\" class=\"more\">더보기</a>");
+	}else if(creatorType=="S"){
+		creatorUl = "#simList";
+		$(creatorUl+" li").not(":lt(5)").hide();
+			if(liCnt2 > 5) {
+				y= 5;
+			}
+		$("#simBt").html("<a href=\"javascript:moreCreator('S')\" class=\"more\">더보기</a>");
+	}
+}
+
+function thesisListChart(url,statType,creatorNo){
+	var controlNo = $("#controlNo").val();
+	var docType = $("#docType").val();
+
+	var data;
+	if(creatorNo!=undefined){
+		data = {statType:statType,docType:docType, creator:creatorNo}
+	}else{
+//		data = {statType:statType,docType:docType, controlNo:'10882939'};//테스트
+		data = {statType:statType,docType:docType, controlNo:controlNo};//실제
+	}
+	
+	$.ajax({
+		  type:"POST",
+		  data : data,
+		  url:url,
+		  dataType:'json',
+		  success:function(data){
+			  var ulId = "";
+			  var chartId = "";
+			  var tmpHtml = "";
+			  if(statType=="P"){
+				ulId = "#pThesisList";
+				chartId = "#pThesisChart";
+			  }else if(statType=="C"){
+				ulId = "#cThesisList";
+				chartId = "#cThesisChart";
+			  }else if(statType=="S"){
+				ulId = "#sThesisList";
+				chartId = "#sThesisChart";
+			  }
+			  for(key in data.list) {
+				if(key<3){
+				tmpHtml = "";				
+				tmpHtml = tmpHtml+"<li>";
+				var repControlNo = data.list[key].controlNo.replace(/(^0+)/, "");
+				tmpHtml = tmpHtml+"<p class=\"tit\"><a href=\"/link?id="+data.list[key].docType+repControlNo+"\">"+data.list[key].title+"</a></p>";
+				tmpHtml = tmpHtml+"<ul class=\"info\">";
+				var strArray = data.list[key].creatorNm.split("★");
+				var tmpCreator = "";
+				for(key2 in strArray){
+					if(key2+1==strArray.length){
+					tmpCreator = strArray[key2];
+					}else{
+					tmpCreator = tmpCreator+strArray[key2]+",";
+					}
+				}
+				tmpHtml = tmpHtml+"<li>"+tmpCreator+"</li>";
+				tmpHtml = tmpHtml+"<li>"+data.list[key].publisherNm+"</li>";
+				tmpHtml = tmpHtml+"<li>"+data.list[key].publishDate+"</li>";
+				tmpHtml = tmpHtml+"</ul>";
+				tmpHtml = tmpHtml+"</li>";
+				console.log(ulId);
+								console.log(tmpHtml);
+				$(ulId).append(tmpHtml);	
+				}
+			  }
+			  drawPCSThesisChart(chartId,data);
+		  }, error: function(request,status,error){
+		  }
+	  }); 
+	
+}
+
+
+
+function drawSubjectChart2(subjectNm,statType){	  
+	var chartNm = "";
+	if(statType=="C"){
+		chartNm = ".yearly1 > .graphW > .chart";
+	}else if(statType=="A"){
+		chartNm = ".yearly2 > .graphW > .chart";
+	}
+	$.ajax({
+		  type:"POST",
+		  data : {subjectNm : subjectNm, statType : statType},
+		  url:"/detail/subjectYearCntChart.do",
+		  dataType:'json',
+		  success:function(data){
+			  Highcharts.setOptions({lang: {numericSymbols: [],thousandsSep:","}});
+			  $(chartNm).highcharts({
+			      	chart : {backgroundColor: '#F8F8F8', style: {fontFamily: "Nanum Gothic"}},
+		            title: {text: '', style: {display: 'none'}}, 
+		            subtitle: {text: '', style: {display: 'none'}},
+		            credits: {enabled: false},
+					exporting: {enabled: false},
+		            xAxis: {categories: data.yearList},
+		            yAxis: {
+		                title: {text: '',style: {display: 'none'}},
+		                plotLines: [{value: 0,width: 1,color: '#808080'}],
+		                min: 0
+		            },
+		            tooltip: {valueSuffix: '건'},
+		            legend: {layout: 'vertical',align: 'right',verticalAlign: 'top',borderWidth: 0,floating : true},
+		            plotOptions: {
+		                series: {
+		                    cursor: 'pointer',
+		                    point: {
+		                        events: {
+		                            click: function (e) {
+		                                hs.htmlExpand(null, {
+		                                    pageOrigin: {x: e.pageX,y: e.pageY},
+		                                    headingText: this.series.name,
+		                                    maincontentText: this.category +'년 : '+ this.y +' 건',
+		                                    width: 150
+		                                });
+		                            }
+		                        }
+		                    },
+		                    marker: {lineWidth: 1}
+		                }
+		            },
+		            series: [
+						{
+	            		name: '건수',
+	            		data: data.cntList, 
+	            		color: "#ff7334",
+	            		zoneAxis : 'x',
+	                	zones:[{value:9}, {dashStyle:'dot'}]
+            			}
+						]
+		        });
+		  }, error: function(request,status,error){
+		  }
+	  }); 
+}
+
+
+function drawPCSThesisChart(chartDivId,data){	  
+			  Highcharts.setOptions({lang: {numericSymbols: [],thousandsSep:","}});
+			  $(chartDivId).highcharts({
+			      	chart : {type:'column',backgroundColor: '#F8F8F8', style: {fontFamily: "Nanum Gothic"}},
+		            title: {text: '', style: {display: 'none'}}, 
+		            subtitle: {text: '', style: {display: 'none'}},
+		            credits: {enabled: false},
+					exporting: {enabled: false},
+		            xAxis: {categories: data.yearList},
+		            yAxis: {
+		                title: {text: '',style: {display: 'none'}},
+		                plotLines: [{value: 0,width: 1,color: '#808080'}],
+		                min: 0
+		            },
+		            tooltip: {valueSuffix: '건'},
+		            legend: {layout: 'vertical',align: 'right',verticalAlign: 'top',borderWidth: 0,floating : true},
+		            plotOptions: {
+		                series: {
+		                    cursor: 'pointer',
+		                    point: {
+		                        events: {
+		                            click: function (e) {
+		                                hs.htmlExpand(null, {
+		                                    pageOrigin: {x: e.pageX,y: e.pageY},
+		                                    headingText: this.series.name,
+		                                    maincontentText: this.category +'년 : '+ this.y +' 건',
+		                                    width: 150
+		                                });
+		                            }
+		                        }
+		                    },
+		                    marker: {lineWidth: 1}
+		                }
+		            },
+		            series: [
+						{
+	            		name: '건수',
+	            		data: data.cntList, 
+	            		color: "#ff7334",
+	            		zoneAxis : 'x',
+	                	zones:[{value:9}, {dashStyle:'dot'}]
+            			}
+						]
+		        });		  
+}

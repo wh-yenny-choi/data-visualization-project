@@ -1,0 +1,209 @@
+// 주제별 활용도 분석 (전체, 대주제, 소주제)
+function stackColChart(chartNm, categories, data, colors, flag){
+	var txt = "";
+	if(flag == "A") {
+		txt = "주제";
+	} else {
+		txt = "년도"
+	}
+    $(chartNm).highcharts({ 	
+    	colors: colors,
+    	credits: {enabled: false},
+    	plotOptions : {column: {stacking: 'normal'},spline:{marker:{lineWidth:3, lineColor : '#FF6927', fillColor : '#fff'}}, series:{pointWidth:40}},
+    	chart: {type: 'column', marginTop: 30, backgroundColor: ''},
+        title: {text: ''},
+        legend: { align: 'right', verticalAlign: 'top', floating:true, y:-15, itemStyle:{"float":"right"}},
+        xAxis: {categories: categories, title:{text:'['+txt+']', align: 'high', style:{fontWeight:'bold'}}, labels: {style: {fontSize : '12px'}}},
+        yAxis: [{title: {offset: -40, text: '[활용도(%)]', align: 'high', rotation: 0, y:-20, x:-5, style:{fontWeight:'bold'}},min:0, minorTickInterval: 1, labels:{ style: {fontSize : '12px', minWidth : '20px', width : '20px'}}}],
+        tooltip:{   
+        	formatter: function () {
+        		var total = 0;
+                var s1 = '';
+                var s2 = '';
+                $.each(this.points, function () {
+                	total += this.y;
+                	var tmp = s2;
+                     s2 = tmp + ' ' + this.series.name + ':' + Math.round(this.y*3,2);
+                });
+                s1 = '<b>' + this.x + ' </b><br><b> 활용도 : ' + Math.round(total) + '%</b><br/>'
+                return s1 + '(' +  s2 + ')';
+            },
+            shared: true,
+            positioner: function(boxWidth, boxHeight, point) {
+            	var chart = this.chart;
+            	var tooltipX = chart.plotLeft+point.plotX-(boxWidth/2);
+            	var tooltipY = point.plotY - (boxHeight/2) -20;
+
+            	if(tooltipY < chart.plotTop) {
+            		tooltipY = chart.plotTop
+            	}
+            	if(chart.plotLeft > tooltipX){
+            		tooltipX = chart.plotLeft
+            	} else if (chart.plotLeft+chart.plotWidth < tooltipX+boxWidth) {
+            		tooltipX = chart.plotLeft+chart.plotWidth - boxWidth;
+            	}
+                return {
+                    x: tooltipX,
+                    y: tooltipY
+                };
+            }
+        },
+        series: data
+    });		
+}
+
+// 학술지 활용성 분석
+function stackedBarChart(chartNm, categories, series, colors, maxCnt, subCode, topCode){
+	var map = new Map();
+	for(var i=0; i<categories.length; i++){
+		map.put(categories[i], subCode[i]);
+	}
+	$(chartNm).highcharts({
+		colors:colors,
+		credits: {enabled: false},
+	    chart: {type: 'bar', marginTop: 40, backgroundColor: ''},
+		title: {text: ''},
+        tooltip:{   
+        	formatter: function () {
+        		var total = 0;
+                var s1 = '';
+                var s2 = '';
+                $.each(this.points, function () {
+                	total += this.y;
+                	var tmp = s2;
+                	s2 = ' ' + this.series.name + ':' + Math.round(this.y*3,2) + s2;
+                });
+                s1 = '<b>' + this.x + ' </b><br> <b>활용도 : ' + Math.round(total) + '%</b><br/>'
+                return s1 + '(' + s2 + ')';
+            },
+            shared: true,
+            positioner: function(boxWidth, boxHeight, point) {
+            	var chart = this.chart;
+            	var tooltipX = chart.plotLeft+point.plotX+10;
+            	var tooltipY =point.plotY- (boxHeight/2);            	
+            	if(tooltipY < chart.plotTop) {tooltipY = chart.plotTop}
+            	if(chart.plotLeft+boxWidth+10 < chart.plotLeft+chart.plotWidth){
+            		tooltipX = chart.plotLeft+chart.plotWidth - boxWidth ;
+            	}
+                return {
+                    x: tooltipX,
+                    y: tooltipY
+                };
+            }
+        },
+		xAxis: {
+			categories: categories,
+			labels: {
+				style: {width: '165px', minWidth:'165px', height:'14px', fontSize : '12px'},
+				useHTML : true,
+				formatter: function(){		
+					if(map.get(this.value)==topCode){
+						return '<div class="nameLink" onclick="subNameLink(this)" title="'+this.value+'" style="text-decoration: underline; color:#ff5f18; font-weight:bold"><input type="hidden" value="' + map.get(this.value) + '"/>' + stringlongLength(this.value,12) + '</div>' ;
+					} else {
+						return '<div class="nameLink" onclick="subNameLink(this)" title="'+this.value+'"><input type="hidden" value="' + map.get(this.value) + '"/>' + stringlongLength(this.value,12) + '</div>' ;
+					}
+				}
+			},
+			 title: {text: '[학술지]', align: 'high', offset: 0, rotation: 0, y: -25, x:-75, style:{fontWeight:'bold'}}
+		},
+		yAxis: {min: 0,max:maxCnt, title: {text: '[활용도(%)]', align: 'high'}, labels:{style: {fontSize : '12px', fontWeight:'bold'}}},
+		plotOptions: {series: {stacking: 'normal'}},
+		legend: { align: 'right', verticalAlign: 'top', floating:true, y:-15, reversed: true},
+		series: series
+	});
+}
+
+//사용 : 원문 다운로드 rnkDownload.jsp
+function drowBasicLineChart(chartNm, categories, data, colors, maxNum){
+	var num = 10;
+	if($("#maxYear").val() == "2016"){
+		num = parseInt($("#maxYear").val())-parseInt($("#minYear").val())-1;
+	}
+	
+	Highcharts.setOptions({lang: {numericSymbols: [''],thousandsSep:","}});
+	$(chartNm).highcharts({
+		chart:{marginTop: 30, backgroundColor: ''},
+        title: {text: '',x: -20},
+        legend: { align: 'right', verticalAlign: 'top', floating:true, y:-15},
+        colors:colors,     
+        credits: {enabled: false},    		// 아래 하이차트 홈페이지 이동 링크 지우기
+        xAxis: {
+        	categories: categories, 
+        	labels: {format: '{value} 년', style: {fontSize : '12px'}},title: {text: '[년도]', align: 'high', style:{fontWeight:'bold'}}
+    	},
+        yAxis: [{
+        	title: {text: '[단위:(천)건]',align: 'high', offset: 0, rotation: 0, y:-20, style:{fontWeight:'bold'}} , 
+        	min:0, 
+        	labels: {style: {color: colors[0], fontSize:'12px'}}
+    	}],        
+        tooltip: {formatter: function () {return this.x + '<br/>' + this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0) + '</b> 건';}},
+        series: [{
+        	name : 'Download',
+        	marker : {lineColor :colors[0], fillColor : '#FFF', lineWidth : 2},
+        	data : data,
+        	zoneAxis : 'x',
+        	zones:[{value:num}, {dashStyle:'Dash'}]
+        }]
+    });
+}
+
+// 대출 / 복사 분석
+function stackedLibBarChart(chartNm, categories, series, colors, maxCnt, subCode, topNm){
+	var map = new Map();
+	for(var i=0; i<categories.length; i++){
+		map.put(categories[i], subCode[i]);
+	}
+	$(chartNm).highcharts({
+		colors:colors,
+		credits: {enabled: false},
+	    chart: {type: 'bar', marginTop: 40, backgroundColor: ''},
+		title: {text: ''},
+		tooltip:{formatter: function () {return this.x + '<br/>'+this.series.name+' : <b>' + Highcharts.numberFormat(this.y, 0) + '건</b>';}},
+		xAxis: {
+			categories: categories,
+			labels: {
+				style: {width: '165px', minWidth:'165px', height:'20px', fontSize : '12px'},
+				useHTML : true,
+				formatter: function(){
+					if(this.value == topNm) {
+						return '<div class="nameLink" onclick="nameLinkClick(this)" title="'+this.value+'" style="text-decoration: underline; color:#ff5f18; font-weight:bold"><input type="hidden" value="' + map.get(this.value) + '"/><input type="hidden" value="' + this.value + '"/>' + stringlongLength(this.value,12) + '</div>' ;
+					} else {
+						return '<div class="nameLink" onclick="nameLinkClick(this)" title="'+this.value+'"><input type="hidden" value="' + map.get(this.value) + '"/><input type="hidden" value="' + this.value + '"/>' + stringlongLength(this.value,12) + '</div>' ;
+					}
+				}
+			}, title :{text:'[기관]', align:'high', offset: 0, rotation: 0, y: -25, x:-145, style:{fontWeight:'bold'}}
+		},
+		yAxis: {min: 0,max:maxCnt, title: {text: '[단위:(천)건]', align:'high', style:{fontWeight:'bold'}}, labels:{style: {fontSize : '12px'}}},
+		legend: { align: 'right', verticalAlign: 'top', floating:true, y:-15, reversed: true},
+		plotOptions: {series: {stacking: 'normal'}},
+		series: series
+	});
+}
+
+function drawPieChart(chartNm, data, colors){
+    $(chartNm).highcharts({
+    	colors:colors,
+    	credits: {enabled: false},
+        chart: {plotBackgroundColor: null,plotBorderWidth: null,plotShadow: false,type: 'pie'},
+        title: {text: ''},
+        legend: { align: 'right', verticalAlign: 'top', floating:true, y:-15},
+        tooltip: {pointFormat: ': <b>{point.percentage:.1f}% ({point.y}건)</b>'},
+        exporting:{enabled:false},
+        plotOptions: {
+            pie: {
+            	size:250,
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    style: {color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black', fontSize:'12px'}
+                }
+            }
+        },
+        series:  [{
+            colorByPoint: true,
+            data: data
+        }]
+      });	
+}

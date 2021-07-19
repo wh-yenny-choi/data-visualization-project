@@ -1,0 +1,1334 @@
+﻿var DetailSearchTop = {
+	submitFlag : "Y",
+	coll : "bib_t",
+	init : function() {
+		this.bib_t_fields = {
+			"detail" : [
+				{"name" : "논문명",		"value" : "znTitle" },
+				{"name" : "저자",		"value" : "znCreator"},
+				{"name" : "주제어",		"value" : "znSubject"},
+				{"name" : "초록",		"value" : "znAbstract"},
+				{"name" : "목차",		"value" : "znKtoc"},
+				{"name" : "수여대학",	"value" : "znPublisher"},
+				{"name" : "학과정보",	"value" : "znMajor"},
+				{"name" : "지도교수",	"value" : "tutor"},
+				{"name" : "전체",		"value" : "znAll"}
+			],
+			"typeOption" :[
+				{"name" : "mat_subtype",	"value" : "",		"title" : "전체"},
+				{"name" : "mat_subtype",	"value" : "T2",		"title" : "국내박사"},
+				{"name" : "mat_subtype",	"value" : "T1",		"title" : "국내석사"},
+				{"name" : "mat_subtype",	"value" : "T5|T6",	"title" : "해외박사"}
+			]
+		};
+		this.bib_m_fields = {
+			"detail" : [
+				{"name" : "서명",		"value" : "znTitle"},
+				{"name" : "저자",		"value" : "znCreator"},
+				{"name" : "주제어",		"value" : "znSubject"},
+				{"name" : "출판사",		"value" : "znPublisher"},
+				{"name" : "ISBN",		"value" : "srch_isbn"},
+				{"name" : "전체",		"value" : "znAll"}
+			],
+			"typeOption" :[
+				{"name" : "mat_type",	"value" : "M",				  "title" : "단행본"},
+				{"name" : "mat_type",	"value" : "N",				  "title" : "비도서"},
+				{"name" : "mat_type",	"value" : "E",				  "title" : "해외eBook"},
+				{"name" : "mat_type",	"value" : "Me|Nu",			  "title" : "국내eBook"}
+			],
+			"selectOption" :[
+				{"name" : "전체",		"value" : ""},
+				{"name" : "한국어",		"value" : "kor"},
+				{"name" : "영어",		"value" : "eng"},
+				{"name" : "중국어",		"value" : "chi"},
+				{"name" : "일본어",		"value" : "jpn"},
+				{"name" : "독일어",		"value" : "ger"},
+				{"name" : "프랑스어",	"value" : "fre"},
+				{"name" : "스페인어",	"value" : "spa"},
+				{"name" : "러시아어",	"value" : "rus"},
+				{"name" : "기타",		"value" : "!eng !chi !jpn !ger !fre !spa !rus"}
+			]
+		};
+		this.re_a_kor_fields = {
+			"detail" : [
+				{"name" : "논문명",		"value" : "znTitle"},
+				{"name" : "저자",		"value" : "znCreator"},
+				{"name" : "주제어",		"value" : "znSubject"},
+				{"name" : "발행기관",	"value" : "znPublisher"},
+				{"name" : "초록",		"value" : "znAbstract"},
+				{"name" : "목차",		"value" : "znKtoc"},
+				{"name" : "전체",		"value" : "znAll"}
+			],
+			"typeOption1" :[
+				{"name" : "dorg_storage",	"value" : "01|02",	"title" : "전체"},
+				{"name" : "dorg_storage",	"value" : "02",		"title" : "유료"},
+				{"name" : "dorg_storage",	"value" : "01",		"title" : "무료"}
+			],
+			"typeOption2" :[
+				{"name" : "regnm",	"value" : "KCI등재",		"title" : "KCI등재"},
+				{"name" : "regnm",	"value" : "KCI등재후보",	"title" : "KCI등재후보"}
+			],
+			"selectOption1" :[
+				{"name" : "전체",		"value" : ""},
+				{"name" : "한국어",		"value" : "kor"},
+				{"name" : "영어",		"value" : "eng"},
+				{"name" : "중국어",		"value" : "chi"},
+				{"name" : "일본어",		"value" : "jpn"},
+				{"name" : "독일어",		"value" : "ger"},
+				{"name" : "프랑스어",	"value" : "fre"},
+				{"name" : "스페인어",	"value" : "spa"},
+				{"name" : "러시아어",	"value" : "rus"},
+				{"name" : "기타",		"value" : "!eng !chi !jpn !ger !fre !spa !rus"}
+			],
+			"selectOption2" :[
+				{"name" : "전체",		"value" : ""},
+				{"name" : "총류",		"value" : "0"},
+				{"name" : "철학",		"value" : "1"},
+				{"name" : "종교",		"value" : "2"},
+				{"name" : "사회과학",	"value" : "3"},
+				{"name" : "자연과학",	"value" : "4"},
+				{"name" : "기술과학",	"value" : "5"},
+				{"name" : "예술",		"value" : "6"},
+				{"name" : "언어",		"value" : "7"},
+				{"name" : "문학",		"value" : "8"},
+				{"name" : "역사",		"value" : "9"}
+			]
+		};
+		this.re_a_over_fields = {
+			"detail" : [
+				{"name" : "논문명",		"value" : "znTitle"},
+				{"name" : "저자",		"value" : "znCreator"},
+				{"name" : "발행기관",	"value" : "znPublisher"},
+				{"name" : "초록",		"value" : "znAbstract"},
+				{"name" : "목차",		"value" : "znKtoc"},
+				{"name" : "전체",		"value" : "znAll"}
+			],
+			"selectOption" :[
+				{"name" : "전체",		"value" : ""},
+				{"name" : "한국어",		"value" : "kor"},
+				{"name" : "영어",		"value" : "eng"},
+				{"name" : "중국어",		"value" : "chi"},
+				{"name" : "일본어",		"value" : "jpn"},
+				{"name" : "독일어",		"value" : "ger"},
+				{"name" : "프랑스어",	"value" : "fre"},
+				{"name" : "스페인어",	"value" : "spa"},
+				{"name" : "러시아어",	"value" : "rus"},
+				{"name" : "기타",		"value" : "!eng !chi !jpn !ger !fre !spa !rus"}
+			],
+			"typeOption1" :[
+				{"name" : "regnm",	"value" : "SCI",	"title" : "SCI"},
+				{"name" : "regnm",	"value" : "SCIE",	"title" : "SCIE"},
+				{"name" : "regnm",	"value" : "AHCI",	"title" : "AHCI"},
+				{"name" : "regnm",	"value" : "SSCI",	"title" : "SSCI"},
+				{"name" : "regnm",	"value" : "SCOPUS",	"title" : "SCOPUS"}
+			],
+			"typeOption2" :[
+				{"name" : "image_yn",	"value" : "1",	"title" : "원문있음"},
+				{"name" : "image_yn",	"value" : "0",	"title" : "원문없음"}
+			],
+			"typeOption3" :[
+				{"name" : "fric_yn",	"value" : "Y",	"title" : "무료(FRIC)"},
+				{"name" : "fric_yn",	"value" : "N",	"title" : "유료"}
+			]
+		};
+		this.kem_fields = {
+			"detail" : [
+				{"name" : "강의명",		"value" : "znTitle"},
+				{"name" : "교수자",		"value" : "znCreator"},
+				{"name" : "발행기관",	"value" : "znPublisher"},
+				{"name" : "강의설명",	"value" : "znAbstract"},
+				{"name" : "전체",		"value" : "znAll"}
+			],
+			"typeOption" :[
+				{"name" : "learning_type",	"value" : "",		"title" : "전체"},
+				{"name" : "learning_type",	"value" : "1",		"title" : "국내자료"},
+				{"name" : "learning_type",	"value" : "1|4",	"title" : "해외자료"},
+				{"name" : "learning_type",	"value" : "4",		"title" : "OAI-PHM(OER)자료 "}
+			],
+			"selectOption1" :[
+				{"name" : "전체",	"value" : ""},
+				{"name" : "한국어",	"value" : "KO"},
+				{"name" : "영어",	"value" : "EN"}
+			],
+			"selectOption2" :[
+				{"name" : "전체",								"value" : ""},
+				{"name" : "저작자표시",							"value" : "1"},
+				{"name" : "저작자표시-비영리",					"value" : "2"},
+				{"name" : "저작자표시-변경금지",				"value" : "3"},
+				{"name" : "저작자표시-동일조건변경허락",		"value" : "4"},
+				{"name" : "저작자표시-비영리-변경금지",			"value" : "5"},
+				{"name" : "저작자표시-비영리-동일조건변경허락",	"value" : "6"}
+			]
+		};
+		this.re_t_fields = {
+			"detail" : [
+				{"name" : "제목",		"value" : "znTitle"},
+				{"name" : "저자",		"value" : "znCreator"},
+				{"name" : "발행기관",	"value" : "znPublisher"},
+				{"name" : "전체",		"value" : "znAll"}
+			],
+			"typeOption" :[
+				{"name" : "t_gubun",	"value" : "02",	"title" : "한국연구재단(NRF)"},
+				{"name" : "t_gubun",	"value" : "03",	"title" : "dCollection"},
+				{"name" : "t_gubun",	"value" : "14",	"title" : "국가정책연구포털(NKIS)"},
+				{"name" : "t_gubun",	"value" : "15",	"title" : "국립의과학지식센터(NCMIK)"},
+				{"name" : "t_gubun",	"value" : "04",	"title" : "교육유관기관"},
+				{"name" : "t_gubun",	"value" : "05",	"title" : "지식나눔(Look)"},
+				{"name" : "t_gubun",	"value" : "13",	"title" : "한국건설기술연구원"},
+				{"name" : "t_gubun",	"value" : "01",	"title" : "기타기관"}
+			]
+		};
+		this.re_s_fields = {
+			"detail" : [
+				{"name" : "학술지명",	"value" : "znTitle"},
+				{"name" : "발행기관",	"value" : "znPublisher"},
+				{"name" : "ISSN",		"value" : "issn"},
+				{"name" : "저자",		"value" : "znCreator"},
+				{"name" : "주제어",		"value" : "znSubject"},
+				{"name" : "전체",		"value" : "znAll"}
+			],
+			"typeOption1" :[
+				{"name" : "inside_outside",	 "value" : "1",	"title" : "국내학술지"},
+				{"name" : "inside_outside",	 "value" : "0",	"title" : "해외학술지"}
+			],
+			"typeOption2" :[
+				{"name" : "regnm",  "value" : "KCI등재",		"title" : "KCI등재"},
+				{"name" : "regnm",  "value" : "KCI등재후보",	"title" : "KCI등재후보"},
+				{"name" : "regnm",  "value" : "SCI",			"title" : "SCI"},
+				{"name" : "regnm",  "value" : "SCIE",			"title" : "SCIE"},
+				{"name" : "regnm",  "value" : "AHCI",			"title" : "AHCI"},
+				{"name" : "regnm",  "value" : "SSCI",			"title" : "SSCI"},
+				{"name" : "regnm",  "value" : "SCOPUS",			"title" : "SCOPUS"}
+			],"typeOption3" :[
+				{"name" : "fric_yn",	"value" : "Y",	"title" : "무료"},
+				{"name" : "fric_yn",	"value" : "N",	"title" : "유료"}
+		   ]
+		};
+		//SCI SCIE AHCI SSCI SCOPUS KCI등재 KCI등재후보
+
+	},
+	makeDetailSerchForm : function(colName) { //collection별 상세검색 form 만들기
+		this.init();
+		var f = document.TopSearch;
+		this.coll = colName;
+
+		if (!colName || this.coll == "re_e_over" || this.coll == "re_s_over") this.coll = "bib_t";
+		var options = this.getCollectionData("detail");
+		if (!options) return false;
+
+		var vLength = $("form[name=RissDetailSearch] div.box div.srchW").length;
+
+		for (var k = 1; k <= vLength; k++) {
+			var field = document.getElementById("field" + k);
+			var fieldUl = document.getElementById("fieldUl" + k);
+
+			field.innerHTML ="";
+			fieldUl.innerHTML = "";
+
+			for (var i = 0; i < options.length; i++) {
+				var option = document.createElement("option");
+				var li = document.createElement("li");
+				var a = document.createElement("a");
+				option.setAttribute("value", options[i].value);
+				option.appendChild(document.createTextNode(options[i].name));
+				a.setAttribute("href", "javascript:void(0);");
+				a.appendChild(document.createTextNode(options[i].name));
+				li.appendChild(a);
+				if ((options.length < k && i == 0) || (i+1) == k) option.setAttribute("selected", "selected");
+				field.appendChild(option);
+				fieldUl.appendChild(li);
+			}
+
+			if (options.length < k) {
+				$("#field" + k).prev("label").text($("#fieldUl" + k + " li:eq(0)").text());
+			} else {
+				$("#field" + k).prev("label").text($("#fieldUl" + k + " li:eq(" + (k-1) + ")").text());
+			}
+		}
+
+		this.makeOption();
+	},
+	makeDetailSerch : function(k) { //collection별 상세검색 form 만들기
+		var options = this.getCollectionData("detail");
+		if (!options) return false;
+		var field = document.getElementById("field" + k);
+		var fieldUl = document.getElementById("fieldUl" + k);
+
+		field.innerHTML ="";
+		fieldUl.innerHTML = "";
+
+		for (var i = 0; i < options.length; i++) {
+			var option = document.createElement("option");
+			var li = document.createElement("li");
+			var a = document.createElement("a");
+			option.setAttribute("value", options[i].value);
+			option.appendChild(document.createTextNode(options[i].name));
+			a.setAttribute("href", "javascript:void(0);");
+			a.appendChild(document.createTextNode(options[i].name));
+			li.appendChild(a);
+//			if ((options.length < k && i == 0) || (i+1) == k) option.setAttribute("selected", "selected");
+			field.appendChild(option);
+			fieldUl.appendChild(li);
+		}
+
+		if (options.length < k) {
+			$("#fieldUl" + k + " li:eq(0) > a").trigger("click");
+		} else {
+			$("#fieldUl" + k + " li:eq(" + (k-1) + ") > a").trigger("click");
+		}
+
+//		$("#fieldUl" + k).prev("label").text($("#fieldUl" + k + " li:eq(" + (k-1) + ")").text());
+	},
+	getCollectionData : function(type) {//collection에 따라 필드 데이터 가져오기
+		var options;
+
+		if (this.coll=='bib_t') {
+			options=this.bib_t_fields[type];
+		} else if (this.coll=='bib_m') {
+			options=this.bib_m_fields[type];
+		} else if (this.coll=='re_a_kor') {
+			options=this.re_a_kor_fields[type];
+		} else if (this.coll=='re_a_over') {
+			options=this.re_a_over_fields[type];
+		} else if (this.coll=='kem') {
+			options=this.kem_fields[type];
+		} else if (this.coll=='re_t') {
+			options=this.re_t_fields[type];
+		} else if (this.coll=='re_s') {
+			options=this.re_s_fields[type];
+		}
+
+		return options;
+	},
+	makeOption : function() {//collection별 하단의 검색 옵션 만들기
+		var option1=document.getElementById('detailSearcjOption1');
+		var option2=document.getElementById('detailSearcjOption2');
+		var option3=document.getElementById('detailSearcjOption3');
+		var option4=document.getElementById('detailSearcjOption4');
+		var option5=document.getElementById('detailSearcjOption5');
+		var option6=document.getElementById('detailSearcjOption6');
+
+		if (this.coll == 'bib_t') {
+			option1.innerHTML = templateOption.searchYear("학위수여연도");
+			option2.innerHTML = templateOption.searchType("학위유형", this.bib_t_fields.typeOption);
+			option3.innerHTML = "";
+			option4.innerHTML = "";
+			option5.innerHTML = "";
+			option1.style.display = "block";
+			option2.style.display = "block";
+			option3.style.display = "none";
+			option4.style.display = "none";
+			option5.style.display = "none";
+		} else if (this.coll == 'bib_m') {
+			option1.innerHTML = templateOption.searchYear("발행연도");
+			option2.innerHTML = templateOption.searchType("자료형태", this.bib_m_fields.typeOption);
+			option3.innerHTML = templateOption.searchSelect("작성언어", this.bib_m_fields.selectOption,"language","language");
+			option4.innerHTML = "";
+			option5.innerHTML = "";
+			option1.style.display = "block";
+			option2.style.display = "block";
+			option3.style.display = "block";
+			option4.style.display = "none";
+			option5.style.display = "none";
+		} else if (this.coll == 're_a_kor') {
+			option1.innerHTML = templateOption.searchYear("발행연도");
+			option2.innerHTML = templateOption.searchSelect("작성언어", this.re_a_kor_fields.selectOption1,"language","language",100);
+			option3.innerHTML = templateOption.searchSelect("주제분류", this.re_a_kor_fields.selectOption2,"kdc","kdc",50);
+			option4.innerHTML = templateOption.searchType("등재여부", this.re_a_kor_fields.typeOption2,"kor_regnm");
+			option5.innerHTML = templateOption.searchType("원문유무료", this.re_a_kor_fields.typeOption1);
+			option1.style.display = "block";
+			option2.style.display = "block";
+			option3.style.display = "block";
+			option4.style.display = "block";
+			option5.style.display = "block";
+		} else if (this.coll == 're_a_over') {
+			option1.innerHTML = templateOption.searchYear("발행연도");
+			option2.innerHTML = templateOption.searchSelect("작성언어", this.re_a_over_fields.selectOption,"language","language");
+			option3.innerHTML = templateOption.searchType("등재여부", this.re_a_over_fields.typeOption1,"over_regnm");
+			option4.innerHTML = templateOption.searchType("원문유무", this.re_a_over_fields.typeOption2,"over_image_yn");
+			option5.innerHTML = templateOption.searchType("원문복사여부", this.re_a_over_fields.typeOption3,"over_fric_yn");
+			option1.style.display = "block";
+			option2.style.display = "block";
+			option3.style.display = "block";
+			option4.style.display = "block";
+			option5.style.display = "block";
+		} else if (this.coll == 'kem') {
+			option1.innerHTML = templateOption.searchType("자료형태", this.kem_fields.typeOption);
+			option2.innerHTML = templateOption.searchSelect("작성언어", this.kem_fields.selectOption1,"language_code","language_code",100);
+			option3.innerHTML = templateOption.searchSelect("CCL 유형", this.kem_fields.selectOption2,"ccl_code","ccl_code",50);
+			option4.innerHTML = "";
+			option5.innerHTML = "";
+			option1.style.display = "block";
+			option2.style.display = "block";
+			option3.style.display = "block";
+			option4.style.display = "none";
+			option5.style.display = "none";
+		} else if (this.coll == 're_t') {
+			option1.innerHTML = templateOption.searchYear("발행연도");
+			option2.innerHTML = templateOption.searchType("발행기관", this.re_t_fields.typeOption);
+			option3.innerHTML = "";
+			option4.innerHTML = "";
+			option5.innerHTML = "";
+			option1.style.display = "block";
+			option2.style.display = "block";
+			option3.style.display = "none";
+			option4.style.display = "none";
+			option5.style.display = "none";
+		} else if (this.coll == 're_s') {
+			option1.innerHTML = templateOption.searchType("자료형태", this.re_s_fields.typeOption1);
+			option2.innerHTML = templateOption.searchType("등재여부", this.re_s_fields.typeOption2,"S");
+			option3.innerHTML = templateOption.searchType("원문복사여부", this.re_s_fields.typeOption3,"over_fric_yn");
+			option4.innerHTML = "";
+			option5.innerHTML = "";
+			option1.style.display = "block";
+			option2.style.display = "block";
+			option3.style.display = "block";
+			option4.style.display = "none";
+			option5.style.display = "none";
+		}
+	},
+	outFocus : function(obj) {
+		//다국어 포커스
+		if (obj=='searchForm_field1') document.getElementById("lastFocusName").value = "keyword1";
+		else if (obj=='searchForm_field2') document.getElementById("lastFocusName").value = "keyword2";
+		else if (obj=='searchForm_field3') document.getElementById("lastFocusName").value = "keyword3";
+		else if (obj=='searchForm_field4') document.getElementById("lastFocusName").value = "keyword4";
+		else if (obj=='searchForm_field5') document.getElementById("lastFocusName").value = "keyword5";
+
+	}
+}
+
+var templateOption = {
+	searchYear : function(subject) {
+		var template =
+				'<p class="tit mt">' + subject + '</P>' +
+				'<div class="cont year">'+
+				'<input type="text" id="p_year1" name="p_year1" maxlength="4" title="시작 ' + subject + '" /> ~ ' +
+				'<input type="text" id="p_year2" name="p_year2" maxlength="4" title="마지막 ' + subject + '" />'+
+				'</div>'
+				;
+		return template;
+	},
+	searchType : function(subject, datas, gubun) {
+		if (typeof gubun == 'undefined') gubun = '';
+		var template = [];
+		template.push('<p class="tit">');
+		template.push(subject);
+		template.push('</p>');
+		template.push('<div class="cont dataType">');
+
+		for (var i = 0; i < datas.length; i++) {
+			if (i == 0) template.push('<ul>');
+			else if (subject == "발행기관" && i == 3) template.push('</ul><ul>');
+			else if (subject == "발행기관" && i == 6) template.push('</ul><ul>');
+			else if (subject == "등재여부" && i == 5) template.push('</ul><ul>');
+			 template.push('<li>');
+			 template.push('<input type="checkbox" id="' + gubun + 'detail_check' + i + '" name="' + datas[i].name + '" value="' + datas[i].value + '"/>');
+			 template.push('<label for="' + gubun + 'detail_check' + i + '">');
+			 template.push('<span class="checkBox"></span>');
+			 template.push(datas[i].title);
+			 template.push('</label>');
+			 template.push('</li>');
+
+		}
+		template.push('</ul>');
+		return template.join('');
+	},
+	searchSelect : function(subject,datas,id,name,zindex) {
+		var template = [];
+
+		template.push('<p class="tit mt">');
+		template.push(subject);
+		template.push('</p>');
+		template.push('<div class="cont dataType clearfix">');
+		template.push('<div class="boardSelect fl type2" style="width:250px;">');
+		template.push('<div class="selectBoxW">');
+		template.push('<label for="' + id + '">' + datas[0].name + '</label>');
+		template.push('<select id="' + id + '" name="'+ name+'" title="' + datas[0].name + '">');
+
+		for (var i = 0; i < datas.length; i++) {
+			if (i == 0)  template.push('<option value="' + datas[i].value + '" selected="selected">' + datas[i].name + '</option>');
+			else template.push('<option value="' + datas[i].value + '">' + datas[i].name + '</option>');
+		}
+		template.push('</select>');
+		template.push('</div>');
+
+		template.push('<div class="boardSelectBox">');
+		template.push('<div class="optList">');
+		template.push('<ul>');
+
+		for (var i = 0; i < datas.length; i++) {
+			template.push('<li><a href="#">' + datas[i].name + '</a></li>');
+		}
+		template.push('</ul>');
+		template.push('</div>');
+		template.push('</div>');
+		template.push('</div>');
+		template.push('</div>');
+		return template.join('');
+	}
+}
+
+function fnSortChange(obj) {
+	var frm = document.TopSearch;
+	var selectObj = $("#" + obj.id  + " option:selected");
+	if (obj.id == "sortSelect1_top") {
+		$("#sortSelect1_bottom").attr('title', $(selectObj).text());//옵션선택시 텍스트 변경
+		$("#sortSelect1_bottom").parent().children('label').text($(selectObj).text());//옵션선택시 텍스트 변경
+		$("#sortSelect1_bottom > option[value=" + $(selectObj).val() + "]").attr("selected","selected");
+		frm.strSort.value = $(selectObj).val();
+	}
+	else if (obj.id == "sortSelect1_bottom")  {
+		$("#sortSelect1_top").attr('title', $(selectObj).text());//옵션선택시 텍스트 변경
+		$("#sortSelect1_top").parent().children('label').text($(selectObj).text());//옵션선택시 텍스트 변경
+		$("#sortSelect1_top > option[value=" + $(selectObj).val() + "]").attr("selected","selected");
+		frm.strSort.value = $(selectObj).val();
+	}
+	else if (obj.id == "sortSelect2_top") {
+		$("#sortSelect2_bottom").attr('title', $(selectObj).text());//옵션선택시 텍스트 변경
+		$("#sortSelect2_bottom").parent().children('label').text($(selectObj).text());//옵션선택시 텍스트 변경
+		$("#sortSelect2_bottom > option[value=" + $(selectObj).val() + "]").attr("selected","selected");
+		  frm.pageScale.value = $(selectObj).val();
+	}
+	else if (obj.id == "sortSelect2_bottom") {
+		$("#sortSelect2_top").attr('title', $(selectObj).text());//옵션선택시 텍스트 변경
+		$("#sortSelect2_top").parent().children('label').text($(selectObj).text());//옵션선택시 텍스트 변경
+		$("#sortSelect2_top > option[value=" + $(selectObj).val() + "]").attr("selected","selected");
+		  frm.pageScale.value = $(selectObj).val();
+	}
+}
+
+var exportData=function(type) {
+	var f=document.createElement("form");
+	if (countCheck(document.getElementsByName("control_no"))<1) {
+		alert('논문을 선택해 주세요.');
+		return;
+	}
+	//try{
+		var pars="?";
+		var p_mat_type_old=f.p_mat_type;
+		if (p_mat_type_old) {
+			for(var i=0;i<p_mat_type_old.length;i++) {
+				f.removeChild(p_mat_type_old[i]);
+			}
+		}
+
+		var controlList=document.getElementsByName("control_no");
+//		if (typeof type=='undefined' || type=='') {
+			for(var i=0;i<controlList.length;i++) {
+			  if (controlList[i].checked==true) {
+				var value=controlList[i].value;
+				var p_mat_type=value.split("_")[1];
+				makeFormDataList(f,"control_no",value.split("_")[0]);
+				makeFormDataList(f,"p_mat_type",p_mat_type);
+			  }
+			}
+//		} else{
+//			for(var i=0;i<controlList.length;i++) {
+//				if (controlList[i].checked==true) {
+//					var value=controlList[i].value;
+//					makeFormDataList(f,"control_no",value);
+//					makeFormDataList(f,"p_mat_type",type);
+//			  }
+//			}
+//		}
+		makeFormDataList(f,"loginFlag",1);
+		document.body.appendChild(f);
+
+		var validations=dataValidation(f.control_no,f.p_mat_type);
+		if (trim(validations)=='') {
+			popupWindow("","_export",620, 707);
+			f.action="/Export.do";
+			f.target="_export";
+			f.method="post";
+			f.submit();
+		} else{
+			var msg="아래의 항목은 삭제된 서지로 내보내기가 되지 않습니다.<br />";
+			var c_nos=validations.split(",");
+//			for(var i=0;i<c_nos.length;i++) {
+//				var text=document.getElementById("T"+trim(c_nos[i])).innerHTML;
+//				msg+="<div class='ellipsis' style='width:400px'>"+text+"</div>";
+//			}
+
+			layerAlert(msg);
+
+			if (confirm('내보내기를 실행하시겠습니까?')) {
+
+				var ctrl_no_cnt = 0;
+				if (typeof f.control_no.length=='undefined' || f.control_no.length=='') {
+					ctrl_no_cnt = 1;
+				} else {
+					ctrl_no_cnt = f.control_no.length;
+				}
+				if (ctrl_no_cnt - c_nos.length == 0) {
+					alert('내보내기할 논문이 없습니다.');
+				} else{
+					for(var i=0;i<c_nos.length;i++) {
+						for(var k=0;k<f.control_no.length;k++) {
+							if (trim(c_nos[i])==trim(f.control_no[k].value)) {
+								f.removeChild(f.control_no[k]);
+								f.removeChild(f.p_mat_type[k]);
+							}
+						}
+					}
+					popupWindow("","_export",620, 707);
+					f.action="/Export.do";
+				f.target="_export";
+				f.method="post";
+				f.submit();
+				}
+			} else{
+				ModalPopup.close('true');
+			}
+		}
+		document.body.removeChild(f);
+}
+
+function fexportData(){
+	var selectedExportId = "";
+
+	if($('input:checkbox[name="exportId"]:checked').length == 0){
+		alert("선택해주세요");
+		return;
+	}
+
+	$('input:checkbox[name="exportId"]').each(function(){
+		if($(this).is(":checked")){
+			selectedExportId += $(this).val() + ";";
+		};
+	});
+	popupWindow("","_export",620, 707);
+
+	$('#exportData > #exportId').attr('value',selectedExportId);
+	$('#exportData').attr('target', '_export');
+	$('#exportData').attr('action', '/fsearch/Export.do').submit();
+}
+
+function putIntoMyCabinetPopForsearch(type) {
+	var f=document.createElement("form");
+	if (countCheck(document.getElementsByName("control_no"))<1) {
+		alert('내서재에 담을 자료를 선택해 주세요.');
+		return false;
+	}
+	try{
+		var controlList=document.getElementsByName("control_no");
+//		if (typeof type=='undefined' || type=='') {
+			for(var i=0;i<controlList.length;i++) {
+			  if (controlList[i].checked==true) {
+				var value=controlList[i].value;
+				makeFormDataList(f,"p_control_no",value.split("_")[0]+"|"+value.split("_")[1]);
+			  }
+			}
+//		} else{
+//			for(var i=0;i<controlList.length;i++) {
+//				if (controlList[i].checked==true) {
+//				var value=controlList[i].value;
+//				makeFormDataList(f,"p_control_no",value+"|"+type);
+//			  }
+//			}
+//		}
+		makeFormDataList(f,"loginFlag",1);
+		document.body.appendChild(f);
+		popupWindow("","putIntoMyCabinetPop", 840, 450);
+
+		f.action="/mylibrary/PutIntoMyCabinetView.do?loginFlag=1";
+		f.target="putIntoMyCabinetPop";
+		f.method="post";
+		f.submit();
+
+		document.body.removeChild(f);
+	}catch(ex) {
+		document.body.removeChild(f);
+	}
+}
+
+function onHanja() {
+	var frm = document.ReSearch;
+
+	if (frm.onHanja.value == "true") {
+		frm.onHanja.value="false";
+	} else{
+		frm.onHanja.value="true";
+	}
+
+	try{
+		document.getElementById("load").style.display = "";
+	}catch(errorObj) {}
+	frm.action = "/search/Search.do";
+	frm.submit();
+}
+
+function onFHanja() {
+	var frm = document.ReSearch;
+
+	if (frm.onHanja.value == "true") {
+		frm.onHanja.value = "false";
+	} else{
+		frm.onHanja.value = "true";
+	}
+
+	try{
+	}catch(errorObj) {}
+	frm.action = "/fsearch/Fsearch.do";
+	frm.submit();
+}
+
+function changeSearchTopColName(val) {
+	if (val=='bib_t' || val=='re_a_kor' || val=='re_a_over' || val=='re_s' || val=='bib_m' || val=='kem' || val=='re_t') {
+		jQuery('.sel_btn').removeClass('open');
+		jQuery('.select_st').removeClass('menu_open');
+
+		if (val=='bib_t') {
+			document.getElementById('searchTopColName').innerHTML="학위논문";
+		} else if (val=='re_a_kor') {
+			document.getElementById('searchTopColName').innerHTML="국내학술지논문";
+		} else if (val=='re_a_over') {
+			document.getElementById('searchTopColName').innerHTML="해외학술지논문";
+		} else if (val=='re_s') {
+			document.getElementById('searchTopColName').innerHTML="학술지";
+		} else if (val=='bib_m') {
+			document.getElementById('searchTopColName').innerHTML="단행본";
+		} else if (val=='kem') {
+			document.getElementById('searchTopColName').innerHTML="공개강의";
+		} else if (val=='re_t') {
+			document.getElementById('searchTopColName').innerHTML="연구보고서 등";
+		}
+	}
+}
+
+function clearField(field) { //필드를 clear하는 함수
+	if (field.value == field.defaultValue) {
+		field.value = '';
+	}
+}
+
+function checkField(field) { //필드를 체크하는 함수
+	if (field.value == '') {
+		field.value = field.defaultValue;
+	}
+}
+
+function goTopCate(col, obj) {
+	var frm = document.tabForm;
+
+	if ( col == "re_s_over") {
+		if (frm.query.value == '' && document.TopSearch.query.value == '') {
+			alert("질의어가 존재 하지 않습니다.");
+			return false;
+		}
+	}
+
+	if (col == "re_e_over" || col == "re_s_over") {
+		if (frm.resultKeyword.value == '' && frm.query.value == '' && document.TopSearch.query.value == '') {
+			alert("질의어가 존재 하지 않습니다.");
+			return false;
+		}
+
+		frm.icate.value = col;
+		if (document.TopSearch.query.value != '') {
+			frm.query.value = document.TopSearch.query.value;
+			frm.fsearchMethod.value = "search";
+			frm.isDetailSearch.value = "N";
+			frm.isFDetailSearch.value = "N";
+			frm.queryText.value = "";
+			frm.resultKeyword.value = "";
+			frm.p_year1.value = "";
+			frm.p_year2.value = "";
+			frm.facetList.value = "";
+			frm.facetListText.value = "";
+		} else {
+			frm.fsearchMethod.value = "";
+		}
+
+		if(col == "re_s_over") {
+			frm.fsearchSort.value = "";
+			frm.fsearchOrder.value = "";
+		}
+
+	} else {
+		if (frm.queryText.value == '' && frm.query.value == '' && document.TopSearch.query.value == '') {
+			alert("질의어가 존재 하지 않습니다.");
+			return false;
+		}
+	}
+
+	$(obj).parent().addClass('on').siblings().removeClass('on');
+
+	frm.colName.value = col;
+
+	frm.action = "/search/Search.do";
+	if (col == "re_e_over" || col == "re_s_over") frm.action = "/fsearch/Fsearch.do";
+	frm.submit();
+}
+
+function orderSearch(col) {
+	var frm = document.TopSearch;
+
+	if (col == "re_e_over" || col == "re_s_over") {
+		frm.fsearchMethod.value = "";
+		if(col == "re_s_over"){
+			frm.fsearchSort.value = "";
+			frm.fsearchOrder.value = "";
+		} else {
+			frm.fsearchSort.value = $("select[name=fsearchSort]").val();
+			frm.fsearchOrder.value = $("select[name=fsearchOrder]").val();
+		}
+		frm.pageNumber.value = 1;
+	} else {
+		frm.strSort.value = $("select[name=strSort] option:selected").val();
+		frm.order.value = $("select[name=order] option:selected").val();
+		frm.iStartCount.value = 0;
+		frm.fsearchMethod.value = "";
+	}
+
+	frm.pageScale.value = $("select[name=pageScale]").val();
+
+	frm.action = "/search/Search.do";
+	if (col == "re_e_over" || col == "re_s_over") frm.action = "/fsearch/Fsearch.do";
+	frm.submit();
+}
+
+//function goPage(count) {
+//	var frm = document.TopSearch;
+//	frm.iStartCount.value = count;
+//	frm.target = "_parent";
+//	frm.action = "/search/Search.do";
+//	frm.submit();
+//}
+//
+//function goFPage(count) {
+//	var frm = document.TopSearch;
+////	frm.fsearchMethod.value = "";
+//	frm.pageNumber.value = count;
+//	frm.target = "_parent";
+//	frm.action = "/fsearch/Fsearch.do";
+//	frm.submit();
+//}
+
+function keywordChk(keyword) {
+	if (keyword.value) {
+		keyword.value = CharacterCheck(keyword.value);
+		if (!trim(keyword.value)) {
+			alert("검색어에 특수문자( ? * , )는 입력할 수 없습니다.");
+			return false;
+		}
+		if (!trim(CharacterCheck2(keyword.value))) {
+			alert("검색어가 알파벳(a~z an at and by for from in is it its on or the with)만으로 이루어져 있습니다. \n다른 검색어를 입력하십시오. ");
+			keyword.focus();
+			return false;
+		}
+	}
+
+	return true;
+}
+
+function fnDetailSearch(frm) {
+	var chk = false;
+	var form = $("form[name=" + frm + "]");
+	var keywords = $("form[name=" + frm + "] input[name*=keyword]");
+	var fields = $("form[name=" + frm + "] select[name*=field]");
+	var ops = $("form[name=" + frm + "] select[name*=op]");
+	
+	if(frm == "RissDetailSearch"){
+		document.RissDetailSearch.isFDetailSearch.value="N";
+	}
+	for (var i = 0; i < keywords.length; i++) {
+		if (keywords[i].value) {
+			chk = true;
+			if (!keywordChk(keywords[i])) return false;
+		}
+	}
+
+	if (!chk) {
+		alert('키워드를 입력해 주세요.');
+		return false;
+	}
+
+	if ($("#sc").prop("checked") == false) {//결과내 검색을 하지 않았을경우
+		form[0].queryText.value = "";
+		form[0].exQuery.value = "";
+		form[0].resultKeyword.value = "";
+	}
+
+	form[0].resultSearch.value = $("#sc").prop("checked");
+
+	form.submit();
+}
+
+function searchCheckValue() {
+	var form = document.TopSearch;
+
+	try {
+		//통합검색일경우
+		if (!form.query.value) {
+			alert('키워드를 입력해 주세요.');
+			return false;
+		}
+
+		form.query.value = CharacterCheck(form.query.value);
+
+		if (!trim(form.query.value)) {
+			alert("검색어에 특수문자( ? * , )는 입력할 수 없습니다.");
+			return false;
+		}
+
+		if (!trim(CharacterCheck2(form.query.value))) {
+			alert("검색어가 알파벳(a~z an at and by for from in is it its on or the with)만으로 이루어져 있습니다. \n다른 검색어를 입력하십시오. ");
+			form.query.focus();
+			return false;
+		}
+
+		if ($("#sc").prop("checked")) { //결과내검색을 했을경우
+			form.isDetailSearch.value = "Y";
+			form.isFDetailSearch.value = "N";
+		} else {  //결과내 검색을 하지 않았을경우
+		   	form.queryText.value = "";
+			form.exQuery.value = "";
+			form.exQueryText.value = "";
+			form.resultKeyword.value = "";
+			form.facetList.value = "";
+			form.limiterList.value = "";
+			form.facetListText.value = "";
+			form.limiterListText.value = "";
+			form.fsearchDB.value = "";
+			form.isDetailSearch.value = "N";
+			form.isFDetailSearch.value = "N";
+			form.mat_type.value = "";
+			form.mat_subtype.value = "";
+			form.fulltext_kind.value = "";
+			form.t_gubun.value = "";
+			form.learning_type.value = "";
+			form.ccl_code.value = "";
+			form.inside_outside.value = "";
+			form.fric_yn.value = "";
+			form.image_yn.value = "";
+			form.gubun.value = "";
+			form.kdc.value = "";
+			form.ttsUseYn.value = "";
+		}
+		form.iStartCount.value = 0;
+		form.pageNumber.value = 1;
+		if (form.colName.value == "re_e_over" || form.colName.value == "re_s_over") {
+			// API 버그로 검색어를 소문자로 변환
+			var searchQuery = form.query.value;
+			if ((searchQuery.indexOf("JN:") != 0) && (searchQuery.indexOf("AR:") != 0) && (searchQuery.indexOf("DE:") != 0)) {
+				searchQuery = searchQuery.toLowerCase();
+			}
+
+			form.query.value = searchQuery;
+
+			form.action= "/fsearch/Fsearch.do";
+		} else {
+			form.action= "/search/Search.do";
+		}
+
+		form.submit();
+	}catch(e) {
+		return false;
+	}
+}
+
+function riss_fsearch(){
+	var form = document.fDetailSearch;
+
+   	form.queryText.value = "";
+	form.exQuery.value = "";
+	form.resultKeyword.value = "";
+	form.facetList.value = "";
+	form.limiterList.value = "";
+	form.facetListText.value = "";
+	form.limiterListText.value = "";
+	form.fsearchDB.value = "";
+	form.isDetailSearch.value = "N";
+	form.isFDetailSearch.value = "Y";
+
+	form.action= "/fsearch/Fsearch.do";
+	form.submit();
+}
+
+function fsearchDBSelectRadio(db) {
+	$("input:checkbox[name='selectFsearchDB']").each(function(){
+		if($(this).is(":checked"))
+			$("input:checkbox[name='selectFsearchDB']").attr("checked",false);
+	});
+
+	$('#totalSearchOption').each(function(){
+		$(this).hide();
+	});
+	$('#totalSearchDetailOption').each(function(){
+		$(this).hide();
+	});
+}
+
+function fn_selectLangTransInput(id){
+	$('#lastFocusName').val(id);
+}
+
+function riss_keyPress_detail(e){
+	if(e.keyCode == 13){
+		riss_detailFsearch();
+	}
+	return false;
+}
+
+function riss_detailFsearch() {
+	var frm = document.fDetailSearch;
+	var chk = false;
+	var form = $("form[name=fDetailSearch]");
+	var keywords = $("form[name=fDetailSearch] input[name*=fsearchKeyWord]");
+
+	for (var i = 0; i < keywords.length; i++) {
+		if (keywords[i].value) {
+			chk = true;
+		}
+	}
+
+	if (!chk) {
+		alert('검색어를 입력해 주세요.');
+		return false;
+	}
+
+	if ($("#sc").prop("checked") == false) { //결과내검색을 했을경우
+		frm.resultKeyword.value = "";
+		frm.limiterList.value = "";
+		frm.limiterListText.value = "";
+		frm.facetList.value = "";
+		frm.facetListText.value = "";
+		frm.fsearchDB.value = "";
+	}
+
+	var facetList = frm.facetList.value;
+	var facetListText = frm.facetListText.value;
+	var fsearchDB = frm.fsearchDB.value;
+
+	$("form[name=fDetailSearch] input:checkbox[name='selectFsearchDB']").each(function() {
+		if(this.checked) {
+			var vTitle =  "제공DB";
+			var vCurrname = this.title;
+			vTitle = vTitle + " [" + vCurrname + "]";
+			var vValue = this.value;
+			var vArrays = vValue.split("@");
+			for (var j = 0; j < vArrays.length; j++) {
+				var vVal = "ContentProvider:" + encodeURIComponent(vArrays[j]);
+				if (facetListText.indexOf(vVal) > -1) return true;
+				if (facetList) facetList += ",";
+				facetList += vVal;
+
+				facetListText += vTitle;
+				facetListText += "@@";
+				facetListText += vVal;
+				facetListText += "@@";
+				facetListText += this.id;
+				facetListText += "◈";
+
+				if (fsearchDB) fsearchDB += ",";
+				fsearchDB += this.id;
+			}
+		}
+	});
+
+	frm.resultSearch.value = $("#sc").prop("checked");
+	frm.facetList.value = facetList;
+	frm.facetListText.value = facetListText;
+	frm.fsearchDB.value = fsearchDB;
+	frm.pageNumber.value = 1;
+	frm.action = '/fsearch/Fsearch.do';
+	frm.submit();
+}
+
+function fnAdd(type) {
+	if (type == "riss1") {
+		$("#detailAdd3").css('display', 'none');
+		$("#detailSelW3").css('display', '');
+		$("#detailSrch4").css('display', '');
+		$("#detailAdd4").css('display', '');
+	} else if (type == "riss2") {
+		$("#detailAdd3").css('display', 'none');
+		$("#detailAdd4").css('display', 'none');
+		$("#detailSelW3").css('display', '');
+		$("#detailSrch4").css('display', '');
+		$("#detailSelW4").css('display', '');
+		$("#detailSrch5").css('display', '');
+	} else if (type == "friss1") {
+		$("#fdetailAdd3").css('display', 'none');
+		$("#fdetailSelW3").css('display', '');
+		$("#fdetailSrch4").css('display', '');
+		$("#fdetailAdd4").css('display', '');
+	} else if (type == "friss2") {
+		$("#fdetailAdd3").css('display', 'none');
+		$("#fdetailAdd4").css('display', 'none');
+		$("#fdetailSelW3").css('display', '');
+		$("#fdetailSrch4").css('display', '');
+		$("#fdetailSelW4").css('display', '');
+		$("#fdetailSrch5").css('display', '');
+	} else if (type == "allriss1") {
+		$("#alldetailAdd3").css('display', 'none');
+		$("#alldetailSelW3").css('display', '');
+		$("#alldetailSrch4").css('display', '');
+		$("#alldetailAdd4").css('display', '');
+	} else if (type == "allriss2") {
+		$("#alldetailAdd3").css('display', 'none');
+		$("#alldetailAdd4").css('display', 'none');
+		$("#alldetailSelW3").css('display', '');
+		$("#alldetailSrch4").css('display', '');
+		$("#alldetailSelW4").css('display', '');
+		$("#alldetailSrch5").css('display', '');
+	}
+}
+
+function fnClear(frm) {
+	$("form[name=" + frm + "]").each(function(e) {
+		this.reset();
+	});
+
+	if(frm == 'RissDetailSearch') {
+		$("input:radio[name=colName]:first").trigger("click");
+
+		$("#op1").attr("title", "AND").children("option").removeAttr('selected').eq(0).attr("selected", "selected");
+		$("#op2").attr("title", "AND").children("option").removeAttr('selected').eq(0).attr("selected", "selected");
+		$("#op3").attr("title", "AND").children("option").removeAttr('selected').eq(0).attr("selected", "selected");
+		$("#op4").attr("title", "AND").children("option").removeAttr('selected').eq(0).attr("selected", "selected");
+		$("label[for=op1]").text("AND");
+		$("label[for=op2]").text("AND");
+		$("label[for=op3]").text("AND");
+		$("label[for=op4]").text("AND");
+		$("#detailAdd3").css('display', '');
+		$("#detailAdd4").css('display', 'none');
+		$("#detailSelW3").css('display', 'none');
+		$("#detailSrch4").css('display', 'none');
+		$("#detailSelW4").css('display', 'none');
+		$("#detailSrch5").css('display', 'none')
+	} else if(frm == 'fDetailSearch') {
+		$("#fsearchfield1").attr("title", "논문명").children("option").removeAttr('selected').eq(1).attr("selected", "selected");
+		$("#fsearchfield2").attr("title", "저자").children("option").removeAttr('selected').eq(2).attr("selected", "selected");
+		$("#fsearchfield3").attr("title", "주제어").children("option").removeAttr('selected').eq(3).attr("selected", "selected");
+		$("#fsearchfield4").attr("title", "학술지명").children("option").removeAttr('selected').eq(4).attr("selected", "selected");
+		$("#fsearchfield5").attr("title", "초록").children("option").removeAttr('selected').eq(5).attr("selected", "selected");
+		$("label[for=fsearchfield1]").text("논문명");
+		$("label[for=fsearchfield2]").text("저자");
+		$("label[for=fsearchfield3]").text("주제어");
+		$("label[for=fsearchfield4]").text("학술지명");
+		$("label[for=fsearchfield5]").text("초록");
+		$("#fsearchSqlType1").attr("title", "AND").children("option").removeAttr('selected').eq(0).attr("selected", "selected");
+		$("#fsearchSqlType2").attr("title", "AND").children("option").removeAttr('selected').eq(0).attr("selected", "selected");
+		$("#fsearchSqlType3").attr("title", "AND").children("option").removeAttr('selected').eq(0).attr("selected", "selected");
+		$("#fsearchSqlType4").attr("title", "AND").children("option").removeAttr('selected').eq(0).attr("selected", "selected");
+		$("label[for=fsearchSqlType1]").text("AND");
+		$("label[for=fsearchSqlType2]").text("AND");
+		$("label[for=fsearchSqlType3]").text("AND");
+		$("label[for=fsearchSqlType4]").text("AND");
+
+		$("#fdetailAdd3").css('display', '');
+		$("#fdetailAdd4").css('display', 'none');
+		$("#fdetailSelW3").css('display', 'none');
+		$("#fdetailSrch4").css('display', 'none');
+		$("#fdetailSelW4").css('display', 'none');
+		$("#fdetailSrch5").css('display', 'none')
+	} else if(frm == 'allDetailSearch') {
+		$("#allfield1").attr("title", "제목").children("option").removeAttr('selected').eq(1).attr("selected", "selected");
+		$("#allfield2").attr("title", "저자").children("option").removeAttr('selected').eq(2).attr("selected", "selected");
+		$("#allfield3").attr("title", "발행기관").children("option").removeAttr('selected').eq(3).attr("selected", "selected");
+		$("#allfield4").attr("title", "전체").children("option").removeAttr('selected').eq(0).attr("selected", "selected");
+		$("#allfield5").attr("title", "전체").children("option").removeAttr('selected').eq(0).attr("selected", "selected");
+		$("label[for=allfield1]").text("제목");
+		$("label[for=allfield2]").text("저자");
+		$("label[for=allfield3]").text("발행기관");
+		$("label[for=allfield4]").text("전체");
+		$("label[for=allfield5]").text("전체");
+		$("#allop1").attr("title", "AND").children("option").removeAttr('selected').eq(0).attr("selected", "selected");
+		$("#allop2").attr("title", "AND").children("option").removeAttr('selected').eq(0).attr("selected", "selected");
+		$("#allop3").attr("title", "AND").children("option").removeAttr('selected').eq(0).attr("selected", "selected");
+		$("#allo41").attr("title", "AND").children("option").removeAttr('selected').eq(0).attr("selected", "selected");
+		$("label[for=allop1]").text("AND");
+		$("label[for=allop2]").text("AND");
+		$("label[for=allop3]").text("AND");
+		$("label[for=allop4]").text("AND");
+		$("#alldetailAdd3").css('display', '');
+		$("#alldetailAdd4").css('display', 'none');
+		$("#alldetailSelW3").css('display', 'none');
+		$("#alldetailSrch4").css('display', 'none');
+		$("#alldetailSelW4").css('display', 'none');
+		$("#alldetailSrch5").css('display', 'none')
+	}
+
+}
+
+function fnKeyPress(e) {
+	if(e.keyCode == 13) {
+		searchCheckValue();
+	}
+	return false;
+}
+
+function fnkeyPressdetail(e, frm) {
+	if(e.keyCode == 13){
+		fnDetailSearch(frm);
+	}
+	return false;
+}
+
+function fncGoForeign(url, dbname) {
+	if (url.indexOf("?") > 0) url = url + "&loginFlag=1";
+	else url = url + "?loginFlag=1";
+
+	var width = 1075;
+	var height = 675;
+	var option = setCenterReport(width, parseInt( height, 10));
+	if(jQuery.browser.IE6){
+		option +=",toolbar=yes";
+	}else{
+		option +=",location=yes";
+	}
+	var winFeature =option  + ",status=no,menubar=no,resizable=yes,scrollbars=yes";
+	var obj = window.open(url, dbname, winFeature);
+	obj.focus();
+}
+
+function fncDbGuide(dbname){
+	var url='/foreign/dbGuide.do?dbname='+dbname;	
+	var width = 540;
+	var height = 350;
+	var option = setCenterReport(width, parseInt( height, 10));
+	if(jQuery.browser.IE6){
+		option +=",toolbar=yes";
+	}else{
+		option +=",location=yes";
+	}
+	var winFeature =option  + ",status=no,menubar=no,resizable=yes,scrollbars=yes";
+	window.open(url, dbname, winFeature);
+	obj.focus();
+}
+
+$(document).ready(function(e) {
+	var col = document.TopSearch.colName.value;
+	var tmp_col = col;
+	if (!col || col == "all") col = "bib_t";
+	DetailSearchTop.makeDetailSerchForm(col);
+	if (tmp_col == "all") {
+		var option1=document.getElementById('detailSearcjOption1');
+		var option2=document.getElementById('detailSearcjOption2');
+		option1.style.display = "none";
+		option2.style.display = "none";
+	}
+	$("input:radio[name=colName]").on("click", function(e) {
+		DetailSearchTop.makeDetailSerchForm($(this).val());
+	});
+});
+
+//꼬리물기 검색
+function searchLink(fieldCode, term){
+	var f = document.fDetailSearch;
+	term = term.replace(/\%2c/g, ',');
+	term = term.replace(/\+/g, ' ');
+	term = term.replace(/\"/g, '');
+	if(fieldCode == "AR" || fieldCode == "AU") {
+		f.fsearchfield1.value = "author";
+	}
+	if(fieldCode == "JN") {
+		f.fsearchfield1.value = "publish";
+	}
+	if(fieldCode == "DE") {
+		f.fsearchfield1.value = "subject";
+	}
+
+	f.fsearchKeyWord1.value = term;
+
+	riss_fsearch();
+}
+
+//음성자료신청
+//오류접수
+var Replacement={
+open: function(layerFlag){
+	jQuery.ajax(
+		{ url : "/replacement/ReplacementForm.do",
+		  type  : "post",
+		  data : jQuery(document.f).serialize()+"&layerFlag="+layerFlag,
+		  dataType : "text",
+		  success : function(result){
+						if(jQuery.trim(result)=='0')
+							alert('음성자료 중복 신청은 허용되지 않습니다.');
+						else{
+							if(layerFlag=='Y'){
+								var obj = window.open("", "replacementForm", "width=900,height=900,status=no,menubar=no,resizable=yes,scrollbars=yes");
+								document.f.action="/replacement/ReplacementForm.do?loginFlag=1";
+								document.f.target="replacementForm";
+								document.f.submit();
+								document.f.target="self";
+							}else{
+								document.f.action="/replacement/ReplacementForm.do";
+								document.f.submit();
+							}
+						}
+					},
+			error: function(content,result){
+				alert("조회시 일시적인 문제가 발생하였습니다.\n다시 시도해 주세요.");
+				}
+		}
+	);
+},
+replace : function(){
+	if(confirm('음성자료 신청 하시겠습니까?')){
+		var form=document.replaceForm;
+		if(this.valueCheck(form)){
+			return true;
+		}
+		return false;
+	}else{
+		return false;
+	}
+},
+valueCheck : function(form){
+	var result=FormValueCheck.valueCheck(form,true);
+	if(result.length>0){
+		alert('필수값에 빈값이 있습니다. 깜박이는 필드를 확인하세요');
+		for(i=0;i<result.length;i++){
+			var element=document.getElementsByName(result[i])[0];
+			if(element.getAttribute("type")=="radio")
+				element=document.getElementById(element.name+"_label");
+			new Effect.Highlight(element, {keepBackgroundImage:true});
+		}
+		return false;
+	}else{
+		return true;
+	}
+}
+};
+
+/**
+oaDOI 자료 확인 - 218.11.15
+*/
+function findOaDOI(an, doi) {
+	id = an.replace(/\./g,'\\.'); // ID에 .이 들어갈 경우 \.으로 변경이 필요함.
+	var oaUrl = "";
+	var obj = $("#oaDOI_"+id);
+
+	$.ajax({
+		type: "GET",
+		url: "https://api.oadoi.org/v2/"+doi+"?email=international@riss.kr",
+		dataType: "json",
+		success: function(json){
+			if(json != null) {
+				if(json.best_oa_location != null) {
+					if(json.best_oa_location.is_best == true){
+						oaUrl = json.best_oa_location.url;
+						if(oaUrl != null) {
+							obj.attr("href", oaUrl);
+						} else {
+							obj.hide();
+						}
+					} else {
+						obj.hide();
+					}
+				} else {
+					obj.hide();
+				}
+			} else {
+				obj.hide();
+			}
+		},
+		error: function(xhr, status, error) {
+			obj.hide();
+		}
+	});
+}

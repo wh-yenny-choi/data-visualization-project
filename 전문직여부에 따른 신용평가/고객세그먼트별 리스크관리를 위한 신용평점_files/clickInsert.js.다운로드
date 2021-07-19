@@ -1,0 +1,57 @@
+var vClickInsert = 1;
+function clickInsertForward(name, url, gubun) {
+    clickInsert(name, url, '', '');
+    if(gubun == "newWindow") {
+        window.open(url);
+    } else if(gubun == "forward") {
+        document.location.href = url;
+    }
+}
+function clickInsert(click_name, click_url, mat_type, control_no){
+    try{
+        jQuery.ajax(
+            {
+                url : "/search/detail/ClickInsertAjax.do",
+                type  : "post",
+                data : {
+                    click_name : click_name,
+                    click_url : click_url,
+                    mat_type : mat_type,
+                    control_no : control_no
+                },
+                dataType : "text",
+                success : function(result){
+                },
+                error: function(content,result){
+                }
+            }
+        );
+    }catch(ex){
+    }
+}
+
+
+function clickInsert(click_name, click_url, mat_type, control_no, id){ 
+    try{
+    	var query = $("#abs" + id).text();  
+        jQuery.ajax(
+            {
+                url : "/search/detail/ClickInsertAjax.do",
+                type  : "post",
+                data : {
+                    click_name : click_name,
+                    click_url : click_url,
+                    mat_type : mat_type,
+                    control_no : control_no,
+                    con_size : query.substr(0, 5000).length
+                },
+                dataType : "text",
+                success : function(result){
+                },
+                error: function(content,result){
+                }
+            }
+        );
+    }catch(ex){
+    }
+}
